@@ -9,21 +9,86 @@ template<class T>
 class Vector{
 private:
 
-    std::size_t size;
-    std::size_t capacity;
-    T* arr;
+    std::size_t size;       // The Current number of elements in the vector
+    std::size_t capacity;   // The total space allocated for the array
+    T* arr;                 // Pointer to the start of the array
 
 
     // Doubles the size of the underlying array when size reaches capacity
-    void grow();
+    void grow(){
+        T* temp = new T[capacity() * 2];
+        capacity *= 2;
+        for(std::size_t i = 0; i < size(); ++i){
+            temp[i] = std::move(arr[i]);
+        }
+
+        delete[] arr;
+        arr = temp;
+    }
 
 public:
 
-    // Iterator for traversing the vector
+    // Bidirectional iterator for traversing the vector
     struct Iterator{
-        T* elt;
+        T* elt; // A pointer to a given element in a vector
 
+
+        // Simple contructor
         Iterator(T* val) : elt{val} {}
+
+
+        // Dereference operator overload
+        T& operator*(){
+            return *elt;
+        }
+
+
+        // Dereference operator overload
+        T* operator->(){
+            return elt;
+        }
+
+
+        // Prefix increment
+        Iterator& operator++(){
+            ++elt;
+            return *this;
+        }
+
+
+        // Postfix increment
+        Iterator operator++(int){
+            Iterator temp(elt);
+            ++elt;
+            return temp;
+        }
+
+
+        // Prefix decrement
+        Iterator& operator--(){
+            --elt;
+            return *this;
+        }
+
+
+        // Postfix decrement
+        Iterator operator--(int){
+            Iterator temp(elt);
+            --elt;
+            return temp;
+        }
+
+
+        // Equality operator overload
+        friend bool operator==(const Iterator& left, const Iterator& right) const {
+            return left.elt == right.elt;
+        }
+
+
+        // Inequality operator overload
+        friend bool operator!=(const Iterator& left, const Iterator& right) const {
+            return left.elt != right.elt;
+        }
     };
 
 
@@ -57,11 +122,23 @@ public:
 
     // Adds the given element in place in memory
     template<class... Args>
-    void emplace_back(Args args);
+    void emplace_back(Args&&... args){
+        if(size() == capacity()) grow();
+        new(arr + size()) T(std::forward<Args>(args)...);
+        ++size;
+    }
 
 
-    // Adds the given element to the back of the vector
-    void push_back(const T& elt);
+    // Adds the given const element to the back of the vector
+    void push_back(const T& elt){
+        emplace_back(elt);
+    }
+
+
+    // Adds the given element to the back of the vector in place
+    void push_back(T&& elt){
+        emplace_back(std::move(elt));
+    }
 
 
     // Returns the size of the vector
@@ -84,15 +161,21 @@ public:
 
     // Returns a reference to the indexed element
     T& at(const std::size_t i){
-        if(i >= size) throw std::out_of_range("Indexed out of range");
+        if(i >= size()) throw std::out_of_range("Indexed out of range");
         return &arr[i];
     }
 
 
     // Returns a const reference to the indexed element
     const T& at(const std::size_t i) const {
-        if(i >= size) throw std::out_of_range("Indexed out of range");
+        if(i >= size()) throw std::out_of_range("Indexed out of range");
         return &arr[i];
+    }
+
+
+    // Returns a reference to the first element in the vector
+    T& front(){
+        return at(0);
     }
 
 
@@ -105,6 +188,25 @@ public:
     // Operator overload to allow direct const indexing
     const T& operator[](const std::size_t i) const {
         return &arr[i];
+    }
+
+
+    // Returns an iterator to the first element in the vector
+    Iterator begin() const {
+        if(size() == 0) throw std::out_of_range("Indexed out of range");
+        return Iterator(arr);
+    }
+
+
+    // Returns an iterator one element past the last element in the vector
+    Iterator end() const {
+        return Iterator(arr + size());
+    }
+
+
+    // Destructor
+    ~Vector(){
+        delete[] arr;
     }
 };
 
