@@ -112,3 +112,75 @@ BOOST_AUTO_TEST_CASE(clear_vec){
     BOOST_TEST(vec.empty());
     BOOST_TEST(vec.capacity() == 16);
 }
+
+
+BOOST_AUTO_TEST_CASE(iterator_basics){
+    // Initialize vector with the alphabet (lowercase)
+    Vector<char> vec;
+    for(std::size_t i = 0; i < 26; ++i){
+        vec.push_back('a' + i);
+    }
+
+    // Make sure size and capacity are correct
+    BOOST_TEST(vec.size() == 26);
+    BOOST_TEST(vec.capacity() == 32);
+
+    // Check that the begin is correct
+    BOOST_TEST(*vec.begin() == 'a');
+    std::size_t i = 0;
+    for(auto it = vec.begin(); it != vec.end(); ++it){
+        BOOST_TEST(*it == ('a' + i));
+        BOOST_TEST(*it == vec[i]);
+        ++i;
+    }
+}
+
+
+BOOST_AUTO_TEST_CASE(range_based_for){
+    // Initialize vector
+    Vector<std::size_t> vec;
+    for(std::size_t i = 0; i < 10; ++i){
+        vec.push_back(i);
+    }
+
+    // Confirm correct size and capacity
+    BOOST_TEST(vec.size() == 10);
+    BOOST_TEST(vec.capacity() == 16);
+
+    // Use a range based for loop to traverse the vector
+    std::size_t i = 0; // For testing
+    for(const std::size_t j : vec){
+        BOOST_TEST(j == i);
+        BOOST_TEST(j == vec[i]);
+        ++i;
+    }
+}
+
+
+BOOST_AUTO_TEST_CASE(iterator_assignments){
+    // Initialize vector with the alphabet (lowercase)
+    Vector<char> vec;
+    for(std::size_t i = 0; i < 26; ++i){
+        vec.push_back('a' + i);
+    }
+
+    // Confirm correct size and capacity
+    BOOST_TEST(vec.size() == 26);
+    BOOST_TEST(vec.capacity() == 32);
+
+    // Update all elements using iterators (uppercase alphabet)
+    std::size_t i = 0;
+    for(auto it = vec.begin(); it != vec.end(); ++it){
+        *it = 'A' + i;
+        ++i;
+    }
+
+    // Check two things:
+    //  1. Capable of range based for loops
+    //  2. Letters were properly updated
+    i = 0;
+    for(const char c : vec){
+        BOOST_TEST(c == ('A' + i));
+        ++i;
+    }
+}

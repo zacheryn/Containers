@@ -1,5 +1,5 @@
-#ifndef VECTOR_H
-#define VECTOR_H
+#ifndef VECTOR_HPP
+#define VECTOR_HPP
 
 #include <utility>
 #include <stdexcept>
@@ -178,6 +178,26 @@ public:
     // Returns a reference to the first element in the vector
     T& front(){
         return at(0);
+    }
+
+
+    // Returns a const reference to the first element in the vector
+    const T& front() const {
+        return at(0);
+    }
+
+
+    // Returns a reference to the final element in the vector
+    T& back(){
+        if(size() == 0) throw std::out_of_range("Indexed out of range");
+        return at(size() - 1);
+    }
+
+
+    // Returns a const reference to the final element in the vector
+    const T& back() const {
+        if(size() == 0) throw std::out_of_range("Indexed out of range");
+        return at(size() - 1);
     }
 
 

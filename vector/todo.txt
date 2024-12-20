@@ -1,0 +1,15 @@
+Add the following tests:
+    constructor given size
+    constructor given size and element
+    emplace back with custom struct with custom constructor
+    Decrement iterator
+    compare iterators
+    front and back functions
+    error handling
+    const values in array
+
+Add to Vector:
+    Add functionality to iterator to make it random access instead of bidirectional
+    Add erase function
+    Add insert function
+    Add function to give the pointer to the vector's underlying array (maybe)
