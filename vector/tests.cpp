@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE vector
 #include <boost/test/included/unit_test.hpp>
 #include <iostream>
-#include "Vector.h"
+#include "Vector.hpp"
 
 
 BOOST_AUTO_TEST_CASE(add_ints){
