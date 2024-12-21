@@ -100,12 +100,12 @@ public:
 
 
     // Size constructor with default value
-    Vector(std::size_t _size) :
+    Vector(const std::size_t _size) :
     Size{_size}, Capacity{_size}, arr{new T[_size]} {}
 
 
-    // Size constructor with given value (assumes copying available)
-    Vector(std::size_t _size, T& elt) :
+    // Size constructor with given value
+    Vector(const std::size_t _size, const T& elt) :
     Size{0}, Capacity{_size}, arr{new T[_size]} {
         for(std::size_t _ = 0; _ < _size; ++_){
             push_back(elt);
@@ -114,7 +114,7 @@ public:
 
 
     // Copy constructor
-    Vector(Vector<T>& other) :
+    Vector(const Vector<T>& other) :
     Size{0}, Capacity{other.capacity()}, arr{new T[other.capacity()]} {
         for(std::size_t i = 0; i < other.size(); ++i){
             push_back(other.at(i));

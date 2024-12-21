@@ -67,6 +67,40 @@ BOOST_AUTO_TEST_CASE(copy_constructor){
 }
 
 
+BOOST_AUTO_TEST_CASE(size_constructor){
+    // Initialize vector with siz, but no default value
+    Vector<int> vec(10);
+
+    // Check size and capacity
+    BOOST_TEST(vec.size() == 10);
+    BOOST_TEST(vec.capacity() == 10);
+
+    // Loop through the vector
+    std::size_t size = 0;
+    for(const int i : vec){
+        ++size;
+    }
+
+    // Ensure that the vector has 10 traversable elements
+    BOOST_TEST(size == 10);
+}
+
+
+BOOST_AUTO_TEST_CASE(size_with_value_constructor){
+    // Initialize vector
+    Vector<std::size_t> vec(10, 1);
+
+    // Check size and capacity
+    BOOST_TEST(vec.size() == 10);
+    BOOST_TEST(vec.capacity() == 10);
+
+    // Make sure all elements are the correct value
+    for(const std::size_t i : vec){
+        BOOST_TEST(i == 1);
+    }
+}
+
+
 BOOST_AUTO_TEST_CASE(pop_elements){
     // Initialize vector
     Vector<std::size_t> vec;
@@ -114,6 +148,39 @@ BOOST_AUTO_TEST_CASE(clear_vec){
 }
 
 
+BOOST_AUTO_TEST_CASE(emplace_back_construct){
+    // Create a simple struct for testing
+    struct A{
+        int a;
+        int b;
+        char c;
+
+        A() :
+        a{-1}, b{-1}, c{'A'} {}
+
+        A(const int _a, const int _b, const char _c) :
+        a{_a}, b{_b}, c{_c} {}
+    };
+
+    // Initialize vector using emplace_back()
+    Vector<A> vec;
+    for(int i = 0; i < 10; ++i){
+        vec.emplace_back(i, i * 2, 'a' + i);
+    }
+
+    // Check size and capacity
+    BOOST_TEST(vec.size() == 10);
+    BOOST_TEST(vec.capacity() == 16);
+
+    // Check the 10 elements
+    for(int i = 0; i < 10; ++i){
+        BOOST_TEST(vec[i].a == i);
+        BOOST_TEST(vec[i].b == (i * 2));
+        BOOST_TEST(vec[i].c == ('a' + i));
+    }
+}
+
+
 BOOST_AUTO_TEST_CASE(iterator_basics){
     // Initialize vector with the alphabet (lowercase)
     Vector<char> vec;
@@ -127,12 +194,35 @@ BOOST_AUTO_TEST_CASE(iterator_basics){
 
     // Check that the begin is correct
     BOOST_TEST(*vec.begin() == 'a');
+
+    // Check that iterators can be used to loop through vector
     std::size_t i = 0;
     for(auto it = vec.begin(); it != vec.end(); ++it){
         BOOST_TEST(*it == ('a' + i));
         BOOST_TEST(*it == vec[i]);
         ++i;
     }
+
+    // Ensure iterators can be decremented
+    auto it1 = vec.begin();
+    auto it2 = vec.begin();
+    bool val = false; // For simplicity in compilation
+
+    val = it1 == it2;
+    BOOST_TEST(val);
+    ++it2;
+    val = it1 != it2;
+    BOOST_TEST(val);
+    --it2;
+    val = it1 == it2;
+    BOOST_TEST(val);
+
+    // // Check that iterators check internal pointers rather than value
+    ++it2;
+    *it2 = *it1;
+    val = it1 != it2;
+    BOOST_TEST(val);
+    BOOST_TEST(*it1 == *it2);
 }
 
 
@@ -183,4 +273,32 @@ BOOST_AUTO_TEST_CASE(iterator_assignments){
         BOOST_TEST(c == ('A' + i));
         ++i;
     }
+}
+
+
+BOOST_AUTO_TEST_CASE(front_back){
+    // Initialize vector
+    Vector<std::size_t> vec;
+    for(std::size_t i = 0; i < 100; ++i){
+        vec.push_back(i);
+    }
+
+    // Check size and capacity
+    BOOST_TEST(vec.size() == 100);
+    BOOST_TEST(vec.capacity() == 128);
+
+    // Check front and back values
+    BOOST_TEST(vec.front() == 0);
+    BOOST_TEST(vec.front() == vec[0]);
+    BOOST_TEST(vec.back() == 99);
+    BOOST_TEST(vec.back() == vec[99]);
+
+    // Check that they can be reassigned
+    vec.front() = 100;
+    vec.back() = 101;
+
+    BOOST_TEST(vec.front() == 100);
+    BOOST_TEST(vec.front() == vec[0]);
+    BOOST_TEST(vec.back() == 101);
+    BOOST_TEST(vec.back() == vec[99]);
 }
