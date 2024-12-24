@@ -41,17 +41,29 @@ public:
 
 
     // Size based constructor (Fills in with default value)
-    List(std::size_t _size){
+    List(std::size_t _size) :
+    first{nullptr}, last{nullptr}, Size{0} {
+        T elt = T();
         for(std::size_t i = 0; i < _size; ++i){
-            push_back(T());
+            push_back(elt);
         }
     }
 
 
     // Sized based constructor with given value (Assumes copying available)
-    List(std::size_t _size, const T& _elt){
+    List(std::size_t _size, const T& _elt) :
+    first{nullptr}, last{nullptr}, Size{0} {
         for(std::size_t i = 0; i < _size; ++i){
             push_back(_elt);
+        }
+    }
+
+
+    // Copy constructor
+    List(const List<T>& other) :
+    first{nullptr}, last{nullptr}, Size{0} {
+        for(auto it = other.begin(); it != other.end(); ++it){
+            push_back(*it);
         }
     }
 
