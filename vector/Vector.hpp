@@ -47,7 +47,7 @@ public:
 
         // Dereference operator overload
         T* operator->(){
-            return elt;
+            return *elt;
         }
 
 
