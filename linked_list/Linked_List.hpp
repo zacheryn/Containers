@@ -292,6 +292,30 @@ public:
     }
 
 
+    // Return a reference to the first element in the list
+    T& front(){
+        return first->elt;
+    }
+
+
+    // Return a const reference to the first element in the list
+    const T& front() const {
+        return first->elt;
+    }
+
+
+    // Return a reference to the last element in the list
+    T& back(){
+        return last->elt;
+    }
+
+
+    // Return a const reference to the last element in the list
+    const T& back() const {
+        return last->elt;
+    }
+
+
     // Remove the first node in the list
     void pop_front(){
         if(empty()) throw std::out_of_range("Cannot delete the a non-existent node");
