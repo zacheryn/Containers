@@ -234,3 +234,32 @@ BOOST_AUTO_TEST_CASE(front_back){
     // Check back
     BOOST_TEST(l.back() == 11);
 }
+
+
+BOOST_AUTO_TEST_CASE(clear){
+    // Initialize list
+    List<std::size_t> l(10, 0);
+
+    // Check size
+    BOOST_TEST(l.size() == 10);
+    BOOST_TEST(!l.empty());
+
+    // Clear the list
+    l.clear();
+
+    // Check size
+    BOOST_TEST(l.size() == 0);
+    BOOST_TEST(l.empty());
+
+    // Add an element to make sure it is correctly cleared
+    l.push_front(1);
+
+    // Check size
+    BOOST_TEST(l.size() == 1);
+    BOOST_TEST(!l.empty());
+
+    // Check the value
+    BOOST_TEST(l.front() == l.back());
+    BOOST_TEST(l.front() == 1);
+    BOOST_TEST(l.back() == 1);      // Redundancy for clarity in case of error
+}
