@@ -55,6 +55,19 @@ private:
         }
     }
 
+
+    // Recursive search method
+    bool search_private(Node* node, const T& val) const {
+        if(node == nullptr){
+            return false;
+        }else if(node->elt == val){
+            return true;
+        }else if(Comparator(node->elt, val)){
+            return search_private(node->right, val);
+        }
+        return search_private(node->left, val);
+    }
+
 public:
 
     // Default constructor
@@ -66,6 +79,7 @@ public:
     template<class... Args>
     void emplace(Args&&... args){
         Node* val = new Node(nullptr, nullptr, std::forward<Args>(args)...);
+        ++Size;
         if(root == nullptr){
             root = val;
             return;
@@ -83,6 +97,29 @@ public:
     // Add a Node to the tree
     void insert(const T& val){
         emplace(val);
+    }
+
+
+    // Returns the numder of Nodes in the tree
+    std::size_t size() const {
+        return Size;
+    }
+
+
+    // Returns true if there are no Nodes in the tree
+    bool empty() const {
+        return size() == 0;
+    }
+
+
+    // Return true if the given value is present in the tree
+    bool search(const T& val) const {
+        return search_private(root, val);
+    }
+
+    // Return true if the given value is present in the tree
+    bool search(T&& val) const {
+        return search_private(root, val);
     }
 
 };
