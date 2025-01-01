@@ -110,7 +110,7 @@ private:
     bool remove_private(Node* parent, const T& val){
         Node* child = nullptr;
         bool isLeft = false;
-        if(parent->right->elt == val){
+        if(Comparator(parent->elt, val)){
             child = parent->right;
         }else{
             child = parent->left;
@@ -133,9 +133,29 @@ private:
             delete child;
             return true;
         }else{
-            Node* temp = new Node(in_order_succesor(child));
+            Node* temp = new Node(child->left, child->right, std::move(in_order_succesor(child)->elt));
             remove(temp->elt);
+            
+            if(isLeft) parent->left = temp;
+            else parent->right = temp;
+            delete child;
+            return true;
         }
+
+        // If you make it here, something went catastrophically wrong
+        return false;
+    }
+
+
+    // Recursively removes all nodes in the tree
+    void clear_private(Node* node){
+        if(node == nullptr) return;
+
+        clear_private(node->left);
+        clear_private(node->right);
+
+        delete node;
+        --Size;
     }
 
 public:
@@ -197,13 +217,45 @@ public:
 
     // Remove the value with the specificed value
     bool remove(const T& val){
+        if(empty()) return false;
+        if(!search(val)) return false;
 
+        --Size;
+        if(root->elt == val){
+            Node* temp = nullptr;
+            if(root->left == nullptr && root->right == nullptr){
+                delete root;
+            }else if(root->left == nullptr){
+                Node* temp = root->right;
+                delete root;
+            }else if(root->right == nullptr){
+                Node* temp = root->left;
+                delete root;
+            }else{
+                Node* temp = new Node(root->left, root->right, std::move(in_order_succesor(root)->elt));
+                remove(temp->elt);
+
+                delete root;
+            }
+            root = temp;
+            return true;
+        }
+
+        Node* parent = parent_of_removed(root, val);
+        return remove_private(parent, val);
     }
 
 
-    // Remove the value with the specificed value
-    bool remove(T&& val){
-        
+    // Removes all elements from the tree
+    void clear(){
+        clear_private(root);
+        root = nullptr;
+    }
+
+
+    // Destructor
+    ~BST(){
+        clear();
     }
 
 };
