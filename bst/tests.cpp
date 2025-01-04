@@ -127,3 +127,27 @@ BOOST_AUTO_TEST_CASE(remove_element){
     BOOST_TEST(tree.search(0));
     BOOST_TEST(tree.search(6));
 }
+
+
+BOOST_AUTO_TEST_CASE(emplace_element){
+    BST<std::pair<int, char>> tree;
+
+    // Make sure tree is empty
+    BOOST_TEST(tree.size() == 0);
+    BOOST_TEST(tree.empty());
+
+    // Emplace a few nodes
+    tree.emplace(1, 'a');
+    tree.emplace(2, 'a');
+    tree.emplace(0, 'b');
+
+    // Check that inserts were made
+    BOOST_TEST(tree.size() == 3);
+    BOOST_TEST(!tree.empty());
+    BOOST_TEST(tree.search(std::pair<int, char>(1, 'a')));
+    BOOST_TEST(tree.search(std::pair<int, char>(2, 'a')));
+    BOOST_TEST(tree.search(std::pair<int, char>(0, 'b')));
+
+    // Check for something not in the tree
+    BOOST_TEST(!tree.search(std::pair<int, char>(0, 'a')));
+}

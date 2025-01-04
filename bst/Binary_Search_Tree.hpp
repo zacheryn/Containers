@@ -228,13 +228,14 @@ public:
             if(root->left == nullptr && root->right == nullptr){
                 delete root;
             }else if(root->left == nullptr){
-                Node* temp = root->right;
+                temp = root->right;
                 delete root;
             }else if(root->right == nullptr){
-                Node* temp = root->left;
+                temp = root->left;
                 delete root;
             }else{
-                Node* temp = new Node(root->left, root->right, std::move(in_order_succesor(root)->elt));
+                temp = new Node(root->left, root->right, std::move(in_order_succesor(root)->elt));
+                ++Size;
                 remove(temp->elt);
 
                 delete root;
