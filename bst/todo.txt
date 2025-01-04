@@ -1,0 +1,4 @@
+Add traversal for tree
+    pre-order
+    post-order
+    in-order

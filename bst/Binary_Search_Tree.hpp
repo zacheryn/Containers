@@ -3,6 +3,7 @@
 
 #include <utility>
 #include <stdexcept>
+#include <functional>
 
 // A binary search tree
 template<class T, class Comparator = std::less<T>>
@@ -45,11 +46,12 @@ private:
     
     std::size_t Size;
     Node* root;
+    Comparator comp;
 
 
     // Recursive insert method
     void insert_private(Node* node, Node* val){
-        if(Comparator(node->elt, val->elt)){    // Look at right child
+        if(comp(node->elt, val->elt)){    // Look at right child
             if(node->right == nullptr){         // Inserting into right child
                 node->right = val;
                 return;
@@ -68,12 +70,12 @@ private:
 
 
     // Recursive search method
-    Node* search_private(const Node* node, const T& val) const {
+    Node* search_private(Node* node, const T& val) const {
         if(node == nullptr){                    // Does not exist
             return nullptr;
         }else if(node->elt == val){             // Found the node
             return node;
-        }else if(Comparator(node->elt, val)){   // Move to right child
+        }else if(comp(node->elt, val)){   // Move to right child
             return search_private(node->right, val);
         }
         return search_private(node->left, val); // Move to left child
@@ -81,8 +83,8 @@ private:
 
 
     // Find parent of node to be deleted (Assumes node is not nullptr)
-    Node* parent_of_removed(const Node* node, const T& val) const {
-        if(Comparator(node->elt, val->elt)){                        // Look at right child
+    Node* parent_of_removed(Node* node, const T& val) const {
+        if(comp(node->elt, val)){                        // Look at right child
             if(node->right == nullptr ||  node->right->elt == val){ // Returning node
                 return node;
             }else{                                                  // Moving to right child
@@ -97,7 +99,7 @@ private:
 
 
     // Find the in-order succesor of the given node
-    Node* in_order_succesor(const Node* node) const {
+    Node* in_order_succesor(Node* node) const {
         if(node->right == nullptr) return nullptr;
 
         Node* child = node->right;
@@ -110,7 +112,7 @@ private:
     bool remove_private(Node* parent, const T& val){
         Node* child = nullptr;
         bool isLeft = false;
-        if(Comparator(parent->elt, val)){
+        if(comp(parent->elt, val)){
             child = parent->right;
         }else{
             child = parent->left;
