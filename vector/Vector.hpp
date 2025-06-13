@@ -36,30 +36,30 @@ public:
 
 
         // Simple contructor
-        Iterator(T* val) : elt{val} {}
+        Iterator(T* val) noexcept : elt{val} {};
 
 
         // Dereference operator overload
-        T& operator*(){
+        T& operator*() noexcept {
             return *elt;
         }
 
 
         // Dereference operator overload
-        T* operator->(){
+        T* operator->() noexcept {
             return *elt;
         }
 
 
         // Prefix increment
-        Iterator& operator++(){
+        Iterator& operator++() noexcept {
             ++elt;
             return *this;
         }
 
 
         // Postfix increment
-        Iterator operator++(int){
+        Iterator operator++(int) noexcept {
             Iterator temp(elt);
             ++elt;
             return temp;
@@ -67,14 +67,14 @@ public:
 
 
         // Prefix decrement
-        Iterator& operator--(){
+        Iterator& operator--() noexcept {
             --elt;
             return *this;
         }
 
 
         // Postfix decrement
-        Iterator operator--(int){
+        Iterator operator--(int) noexcept {
             Iterator temp(elt);
             --elt;
             return temp;
@@ -82,20 +82,22 @@ public:
 
 
         // Equality operator overload
-        friend bool operator==(const Iterator& left, const Iterator& right){
+        // Checks that the two iterators point to the same object
+        friend bool operator==(const Iterator& left, const Iterator& right) noexcept {
             return left.elt == right.elt;
         }
 
 
         // Inequality operator overload
-        friend bool operator!=(const Iterator& left, const Iterator& right){
+        // Checks that the two iterators point to different objects
+        friend bool operator!=(const Iterator& left, const Iterator& right) noexcept {
             return left.elt != right.elt;
         }
     };
 
 
     // Default constructor
-    Vector() :
+    Vector() noexcept :
     Size{0}, Capacity{0}, arr{nullptr} {}
 
 
@@ -144,19 +146,19 @@ public:
 
 
     // Returns the size of the vector
-    std::size_t size() const {
+    std::size_t size() const noexcept {
         return Size;
     }
 
 
     // Returns the capacity of the vector
-    std::size_t capacity() const {
+    std::size_t capacity() const noexcept {
         return Capacity;
     }
 
 
     // Returns true if the vector is empty
-    bool empty() const {
+    bool empty() const noexcept {
         return Size == 0;
     }
 

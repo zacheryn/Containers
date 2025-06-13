@@ -36,7 +36,7 @@ private:
 public:
 
     // Default constructor
-    List() :
+    List() noexcept :
     first{nullptr}, last{nullptr}, Size{0} {}
 
 
@@ -72,37 +72,36 @@ public:
     struct Iterator{
     private:
 
-        Node* node; // A pointer to a given element in a vector
+        Node* node; // A pointer to a given element in a linked list
         friend class List;
 
     public:
 
-
         // Simple contructor
-        Iterator(Node* _node) : node{_node} {}
+        Iterator(Node* _node) noexcept : node{_node} {}
 
 
         // Dereference operator overload
-        T& operator*(){
+        T& operator*() noexcept {
             return node->elt;
         }
 
 
         // Dereference operator overload
-        T* operator->(){
+        T* operator->() noexcept {
             return node->elt;
         }
 
 
         // Prefix increment
-        Iterator& operator++(){
+        Iterator& operator++() noexcept {
             node = node->next;
             return *this;
         }
 
 
         // Postfix increment
-        Iterator operator++(int){
+        Iterator operator++(int) noexcept {
             Iterator temp(node);
             node = node->next;
             return temp;
@@ -110,14 +109,14 @@ public:
 
 
         // Prefix decrement
-        Iterator& operator--(){
+        Iterator& operator--() noexcept {
             node = node->prev;
             return *this;
         }
 
 
         // Postfix decrement
-        Iterator operator--(int){
+        Iterator operator--(int) noexcept {
             Iterator temp(node);
             node = node->prev;
             return temp;
@@ -125,38 +124,38 @@ public:
 
 
         // Equality operator overload
-        friend bool operator==(const Iterator& left, const Iterator& right){
+        friend bool operator==(const Iterator& left, const Iterator& right) noexcept {
             return left.node == right.node;
         }
 
 
         // Inequality operator overload
-        friend bool operator!=(const Iterator& left, const Iterator& right){
+        friend bool operator!=(const Iterator& left, const Iterator& right) noexcept {
             return left.node != right.node;
         }
     };
 
 
     // Returns the number of nodes in the list
-    std::size_t size(){
+    std::size_t size() const noexcept {
         return Size;
     }
 
 
     // Returns true if the list is empty
-    bool empty(){
+    bool empty() const noexcept {
         return size() == 0;
     }
 
 
     // Returns an iterator to the first element
-    Iterator begin(){
+    Iterator begin() noexcept {
         return Iterator(first);
     }
 
 
     // Returns an iterator to one past the final element
-    Iterator end(){
+    Iterator end() noexcept {
         if(empty()) return Iterator(last);
         return Iterator(last->next);
     }
@@ -294,24 +293,28 @@ public:
 
     // Return a reference to the first element in the list
     T& front(){
+        if(empty()) throw std::out_of_range("Cannot index into empty list");
         return first->elt;
     }
 
 
     // Return a const reference to the first element in the list
     const T& front() const {
+        if(empty()) throw std::out_of_range("Cannot index into empty list");
         return first->elt;
     }
 
 
     // Return a reference to the last element in the list
     T& back(){
+        if(empty()) throw std::out_of_range("Cannot index into empty list");
         return last->elt;
     }
 
 
     // Return a const reference to the last element in the list
     const T& back() const {
+        if(empty()) throw std::out_of_range("Cannot index into empty list");
         return last->elt;
     }
 
