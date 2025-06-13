@@ -231,8 +231,8 @@ public:
     // Removes the last element in the vector
     void pop_back(){
         if(empty()) throw std::out_of_range("Cannot remove element from empty vector");
-        arr[size()].~T();
         --Size;
+        arr[size()].~T();
     }
 
 
