@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE(size_constructor){
 
     // Loop through the vector
     std::size_t size = 0;
-    for(const int i : vec){
+    for( [[maybe_unused]] const int i : vec){
         ++size;
     }
 
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE(size_with_value_constructor){
 BOOST_AUTO_TEST_CASE(pop_elements){
     // Initialize vector
     Vector<std::size_t> vec;
-    for(std::size_t i = 0; i < 10; ++i){
+    for(std::size_t i = 0; i < 16; ++i){
         vec.push_back(i);
     }
 
@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE(pop_elements){
     }
 
     // Check that vector has correct size and capacity
-    BOOST_TEST(vec.size() == 5);
+    BOOST_TEST(vec.size() == 11);
     BOOST_TEST(vec.capacity() == 16);
 
     // Add more elements to ensure elements update properly
@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE(pop_elements){
         vec.push_back(i);
     }
     for(std::size_t i = 0; i < 5; ++i){
-        BOOST_TEST(vec[i] == vec[i + 5]);
+        BOOST_TEST(vec[i] == vec[i + 11]);
     }
 }
 

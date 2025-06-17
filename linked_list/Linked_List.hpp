@@ -25,7 +25,7 @@ private:
         // Constructor with variable parameters
         template<class... Args>
         Node(Node* _next, Node* _prev, Args&&... args) :
-        next{_next}, prev{_prev}, elt{T(std::forward<Args>(args)...)} {}
+        elt{T(std::forward<Args>(args)...)}, next{_next}, prev{_prev} {}
     };
 
 
