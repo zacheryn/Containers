@@ -17,24 +17,26 @@ private:
     struct Block{
         static constexpr std::size_t BLOCKSIZE = 16;
 
-        std::array<T, BLOCKSIZE> data;
+        std::unique_ptr<T> data;
         T* overflow = nullptr;
         std::size_t size;
         std::size_t first_offset;
         bool is_full;
-        bool back_overflow = false;
 
         // Default constructor
         Block() noexcept
-        : size{0}
+        : data{new T[BLOCKSIZE]}
+        , size{0}
         , first_offset{0}
         , is_full{false}
         {}
 
         // Construct the block to be filled with the given value
         Block(const T& val)
-        : size{0}
-        , first_offset{0} {
+        : data{new T[BLOCKSIZE]}
+        , size{0}
+        , first_offset{0}
+        , is_full{false} {
             static_assert(std::is_copy_constructible_v<T>);
             for(std::size_t i = 0; i < BLOCKSIZE; ++i){
                 emplace_back(val);
@@ -43,13 +45,24 @@ private:
 
         // Construct the block to be filled with _size of the given value
         Block(const T& val, const std::size_t _size)
-        : size{0}
+        : data{new T[BLOCKSIZE]}
+        , size{0}
         , first_offset{0} {
             static_assert(std::is_copy_constructible_v<T>);
-            if(_size > BLOCKSIZE) throw std::out_of_range("Too many values for the Block.  Max of 16");
+            if(_size > BLOCKSIZE) throw std::out_of_range("Too many values for the Block. Max of 16");
             for(std::size_t i = 0; i < _size; ++i){
                 emplace_back(val);
             }
+        }
+
+        // Move constructor
+        Block(Block&& other)
+        : data{nullptr}
+        , overflow{std::move(other.overflow)}
+        , size{std::move(other.size)}
+        , first_offset{std::move(other.first_offset)}
+        , is_full{std::move(other.is_full)} {
+            data.swap(other);
         }
 
         // Returns true if you can insert into the front of the block
@@ -66,7 +79,7 @@ private:
         template<class... Args>
         void emplace_front(Args&&... args){
             if(!check_front()) throw std::out_of_range("No space left in the front of Block");
-            new(data.data + (first_offset - 1)) T(std::forward<Args>(args)...);
+            new(data.get() + (first_offset - 1)) T(std::forward<Args>(args)...);
             ++size;
             --first_offset;
             if(size == BLOCKSIZE) is_full = true;
@@ -76,7 +89,7 @@ private:
         template<class... Args>
         void emplace_back(Args&&... args){
             if(!check_back()) throw std::out_of_range("No space left in the back of Block");
-            new(data.data + (size + first_offset)) T(std::forward<Args>(args)...);
+            new(data.get() + (size + first_offset)) T(std::forward<Args>(args)...);
             ++size;
             if(size == BLOCKSIZE) is_full = true;
         }
@@ -92,7 +105,7 @@ private:
                 for(std::size_t i = first_offset + _pos - 1; i >= first_offset; --i){
                     std::swap(temp, data[i]);
                 }
-                new(data.data + (first_offset - 1)) T(temp);
+                new(data.get() + (first_offset - 1)) T(temp);
                 --first_offset;
                 ++size;
             }else{
@@ -103,7 +116,7 @@ private:
                     overflow = new T(temp);
                     return true;
                 }
-                new(data.data + size) T(temp);
+                new(data.get() + size) T(temp);
                 ++size;
             }
             if(size == BLOCKSIZE) is_full = true;
@@ -168,16 +181,77 @@ private:
             first_offset = 0;
         }
 
+        // Move assignment
+        Block& operator=(Block&& other) noexcept {
+            data = std::move(other.data);
+            clear_overflow();
+            overflow = std::move(other.overflow);
+            size = std::move(other.size);
+            first_offset = std::move(other.first_offset);
+            is_full = std::move(other.is_full);
+        }
+
         ~Block(){
             clear_overflow();
         }
     };
 
-    std::size_t Size;               // Number of elements
-    std::size_t blocks;             // Number of Blocks
-    std::unique_ptr<Block> data;    // Array of Blocks
+    std::size_t Size;                       // Number of elements
+    std::size_t blocks_total;               // Total number of allocated Blocks
+    std::size_t blocks_used;                // Number of Blocks currently in use
+    std::size_t first_offset;               // Offset to the first used block
+    std::unique_ptr<Block> data;            // Array of Blocks
+
+    // Double the number of allocated blocks to the front of the deque
+    // REQUIRES first_offset = 0
+    void grow_front() noexcept {
+        if(blocks_total == 0) blocks_total = 1;
+        std::unique_ptr<Block> temp(new T[blocks_total * 2]);
+        for(std::size_t i = 0; i < blocks_used; ++i){
+            temp[blocks_total + i] = std::move(data[i]);
+        }
+        first_offset = blocks_total;
+        blocks_total *= 2;
+    }
+
+    // Double the number of allocated blocks to the back of the deque
+    void grow_back() noexcept {
+
+    }
 
 public:
+
+    // Default constructor
+    Deque()
+    : data{nullptr}
+    , blocks{0}
+    , Size{0}
+    {}
+
+    // Size constructor
+    // Creates a Deque of size _size
+    Deque(std::size_t _size)
+    : data{new Block[((_size + Block::BLOCKSIZE - 1) / Block::BLOCKSIZE)]}
+    , blocks{(_size + Block::BLOCKSIZE - 1) / Block::BLOCKSIZE}
+    , Size{_size}
+    {}
+
+    // Returns the number of elements in the deque
+    std::size_t size() const noexcept {
+        return Size;
+    }
+
+    // Returns true if there are no elements in the deque
+    bool empty() const noexcept {
+        return size() == 0;
+    }
+
+    // Returns the capacity of the underlying storage currently allocated
+    std::size_t capacity() const noexcept {
+        return blocks_total * Block::BLOCKSIZE;
+    }
+
+    ~Deque() = default;
 
 };
 
