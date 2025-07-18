@@ -18,15 +18,15 @@ There is a help message if `compile` is called without an argument, and it only 
 
 ### ./compile vector
 
-This compiles `Vector` with its test casesand outputs `vector/test.exe`.
+This compiles `Vector` with its test cases and outputs `vector/test.exe`.
 
 ### ./compile linked_list
 
-This compiles `Linked_Listr` with its test casesand outputs `linked_list/test.exe`.
+This compiles `Linked_Listr` with its test cases and outputs `linked_list/test.exe`.
 
 ### ./compile deque
 
-This compiles `Deque` with its test casesand outputs `deque/test.exe`.
+This compiles `Deque` with its test cases and outputs `deque/test.exe`.
 
 ### ./compile all
 
