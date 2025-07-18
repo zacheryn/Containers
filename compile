@@ -11,16 +11,18 @@ usage() {
   echo "Usage: $0 (vector|linked_list|deque|all|clean)"
 }
 
+FLAGS="-Wall -Werror -Wextra -pedantic -Wshadow -Wconversion -O3 -DNDEBUG -lboost_unit_test_framework"
+
 vector() {
-  g++ vector/Vector.hpp vector/tests.cpp -Wall -Wextra -pedantic -lboost_unit_test_framework -o vector/test.exe
+  g++ vector/Vector.hpp vector/tests.cpp $FLAGS -o vector/test.exe
 }
 
 linked_list() {
-  g++ linked_list/Linked_List.hpp linked_list/tests.cpp -Wall -Wextra -pedantic -lboost_unit_test_framework -o linked_list/test.exe
+  g++ linked_list/Linked_List.hpp linked_list/tests.cpp $FLAGS -o linked_list/test.exe
 }
 
 deque() {
-  g++ deque/Deque.hpp deque/tests.cpp -Wall -Wextra -pedantic -lboost_unit_test_framework -o deque/test.exe
+  g++ deque/Deque.hpp deque/tests.cpp $FLAGS -o deque/test.exe
 }
 
 if [ $# -ne 1 ]; then

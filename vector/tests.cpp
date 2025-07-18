@@ -163,8 +163,9 @@ BOOST_AUTO_TEST_CASE(emplace_back_construct){
 
     // Initialize vector using emplace_back()
     Vector<A> vec;
-    for(int i = 0; i < 10; ++i){
-        vec.emplace_back(i, i * 2, 'a' + i);
+    char c = 0;
+    for(int i = 0; i < 10; ++i, ++c){
+        vec.emplace_back(i, i * 2, static_cast<char>('a' + c));
     }
 
     // Check size and capacity
@@ -183,7 +184,7 @@ BOOST_AUTO_TEST_CASE(emplace_back_construct){
 BOOST_AUTO_TEST_CASE(iterator_basics){
     // Initialize vector with the alphabet (lowercase)
     Vector<char> vec;
-    for(std::size_t i = 0; i < 26; ++i){
+    for(char i = 0; i < 26; ++i){
         vec.push_back('a' + i);
     }
 
@@ -249,7 +250,7 @@ BOOST_AUTO_TEST_CASE(range_based_for){
 BOOST_AUTO_TEST_CASE(iterator_assignments){
     // Initialize vector with the alphabet (lowercase)
     Vector<char> vec;
-    for(std::size_t i = 0; i < 26; ++i){
+    for(char i = 0; i < 26; ++i){
         vec.push_back('a' + i);
     }
 
@@ -258,7 +259,7 @@ BOOST_AUTO_TEST_CASE(iterator_assignments){
     BOOST_TEST(vec.capacity() == 32);
 
     // Update all elements using iterators (uppercase alphabet)
-    std::size_t i = 0;
+    char i = 0;
     for(auto it = vec.begin(); it != vec.end(); ++it){
         *it = 'A' + i;
         ++i;

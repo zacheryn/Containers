@@ -32,6 +32,14 @@ public:
 
     // Bidirectional iterator for traversing the vector
     struct Iterator{
+        // Iterator traits to make the iterator stl compliant
+        using iterator_category = std::bidirectional_iterator_tag;
+        using value_type = T;
+        using difference_type = std::ptrdiff_t;
+        using pointer = T*;
+        using reference = T&;
+
+
         T* elt; // A pointer to a given element in a vector
 
 
@@ -117,10 +125,45 @@ public:
 
     // Copy constructor
     Vector(const Vector<T>& other) :
-    Size{0}, Capacity{other.capacity()}, arr{new T[other.capacity()]} {
-        for(std::size_t i = 0; i < other.size(); ++i){
-            push_back(other.at(i));
+    Size{other.size()}, Capacity{other.capacity()}, arr{new T[other.capacity()]} {
+        std::copy(other.begin(), other.end(), begin());
+    }
+
+
+    // Move constructor
+    Vector(Vector<T>&& other) :
+    Size{std::move(other.Size)}, Capacity{std::move(other.Capacity)}, arr{std::move(other.arr)}
+    {}
+
+
+    // Copy assignment
+    Vector<T>& operator=(const Vector<T>& other){
+        // Guard self assignment
+        if(this->arr == other.arr) return *this;
+        
+        if(arr != nullptr){
+            delete arr;
         }
+
+        arr = new T[other.capacity()];
+        Size = other.size();
+        std::copy(other.begin(), other.end(), begin());
+
+        return *this;
+    }
+
+
+    // Move assignment
+    Vector<T>& operator=(Vector<T>&& other){
+        // Guard self assignment
+        if(this->arr == other.arr) return *this;
+
+        if(arr != nullptr) delete arr;
+
+        arr = std::move(other.arr);
+        Size = std::move(other.Size);
+        Capacity = std::move(other.Capacity);
+        return *this;
     }
 
 
@@ -204,26 +247,27 @@ public:
 
 
     // Operator overload to allow direct indexing
-    T& operator[](const std::size_t i){
+    T& operator[](const std::size_t i) noexcept {
         return arr[i];
     }
 
 
     // Operator overload to allow direct const indexing
-    const T& operator[](const std::size_t i) const {
+    const T& operator[](const std::size_t i) const noexcept {
         return arr[i];
     }
 
 
     // Returns an iterator to the first element in the vector
     Iterator begin() const {
-        if(size() == 0) throw std::out_of_range("Indexed out of range");
+        if(empty()) throw std::out_of_range("Cannot create an Iterator of an empty Vector");
         return Iterator(arr);
     }
 
 
     // Returns an iterator one element past the last element in the vector
     Iterator end() const {
+        if(empty()) throw std::out_of_range("Cannot create an Iterator of an empty Vector");
         return Iterator(arr + size());
     }
 
@@ -248,6 +292,5 @@ public:
         delete[] arr;
     }
 };
-
 
 #endif

@@ -216,7 +216,12 @@ private:
 
     // Double the number of allocated blocks to the back of the deque
     void grow_back() noexcept {
-
+        if(blocks_total == 0) blocks_total = 1;
+        std::unique_ptr<Block> temp(new T[blocks_total * 2]);
+        for(std::size_t i = 0; i < blocks_used && (first_offset + i) < blocks_total; ++i){
+            temp[first_offset + i] = std::move(data[first_offset + i]);
+        }
+        blocks_total *= 2;
     }
 
 public:
