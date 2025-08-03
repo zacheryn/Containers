@@ -22,22 +22,22 @@ bst:
 	g++ bst/Binary_Search_Tree.hpp bst/tests.cpp $(flags) -o bst/test.exe
 
 debug:
-	g++ vector/Vector.hpp vector/tests.cpp $(debug_flags) -o vector/test.exe;
-	g++ linked_list/Linked_List.hpp linked_list/tests.cpp $(debug_flags) -o linked_list/test.exe;
-	g++ deque/Deque.hpp deque/tests.cpp $(debug_flags) -o deque/test.exe;
-	g++ bst/Binary_Search_Tree.hpp bst/tests.cpp $(debug_flags) -o bst/test.exe
+	g++ vector/Vector.hpp vector/tests.cpp $(debug_flags) -o vector/debug_test.exe;
+	g++ linked_list/Linked_List.hpp linked_list/tests.cpp $(debug_flags) -o linked_list/debug_test.exe;
+	g++ deque/Deque.hpp deque/tests.cpp $(debug_flags) -o deque/debug_test.exe;
+	g++ bst/Binary_Search_Tree.hpp bst/tests.cpp $(debug_flags) -o bst/debug_test.exe
 
 debug_vector:
-	g++ vector/Vector.hpp vector/tests.cpp $(debug_flags) -o vector/test.exe;
+	g++ vector/Vector.hpp vector/tests.cpp $(debug_flags) -o vector/debug_test.exe;
 
 debug_linked_list:
-	g++ linked_list/Linked_List.hpp linked_list/tests.cpp $(debug_flags) -o linked_list/test.exe;
+	g++ linked_list/Linked_List.hpp linked_list/tests.cpp $(debug_flags) -o linked_list/debug_test.exe;
 
 debug_deque:
-	g++ deque/Deque.hpp deque/tests.cpp $(debug_flags) -o deque/test.exe;
+	g++ deque/Deque.hpp deque/tests.cpp $(debug_flags) -o deque/debug_test.exe;
 
 debug_bst:
-	g++ bst/Binary_Search_Tree.hpp bst/tests.cpp $(debug_flags) -o bst/test.exe
+	g++ bst/Binary_Search_Tree.hpp bst/tests.cpp $(debug_flags) -o bst/debug_test.exe
 
 clean:
 	rm -f */test.exe;
