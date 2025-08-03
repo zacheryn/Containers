@@ -12,9 +12,9 @@ private:
 
     // A data structure for each node of the tree
     struct Node{
-        T elt;
         Node* left;
         Node* right;
+        T elt;
 
 
         // Default contructor
