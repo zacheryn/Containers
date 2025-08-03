@@ -89,3 +89,7 @@ There are no public variables.
 `void clear()`: Frees all Nodes in the list.
 
 `~List()`: Destructor, Frees all Nodes in the list.
+
+### Structs/Classes
+
+`Iterator`: A bidirectional iterator that is stl compliant.
