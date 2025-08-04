@@ -80,6 +80,12 @@ There are no public variables
 
 `void clear()`: Removes every element of the vector while keeping the underlying array allocated.
 
+`void shrink_to_fit() noexcept`: Shrinks the internal buffer capacity down to the number of elements. If `capacity() == size()`, then this function does nothing. If `empty()`, it frees the memory, and sets the array pointer to `nullptr`. Otherwise, allocates a new array of size `size()` and moves over all elements.
+
+`void reserve(const std::size_t _size) noexcept`: Allocates an array of at least `_size` elements. Only affects `Capacity`. If `_size <= capacity()`, the function doesn't do anything. Otherwise, allocates an array of size `_size`, moves over all elements to the new array, and maintains the current `size()` of the Vector.
+
+`void resize(const std::size_t _size) noexcept`: Changes the size of the Vector to match `_size`. If `_size == size()`, this function does nothing. Otherwise, allocates a new array of size `_size`, copying over the minimum of `_size` and `size()` elements into the new array. If `_size < size()`, it truncates the Vector.  If `_size > size()`, fills thee extra space with the default value. Sets both `Size` and `Capacity` to `_size`.
+
 `~Vector()`: Destructor, frees `this->arr`.
 
 ### Structs/Classes
