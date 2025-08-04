@@ -18,10 +18,10 @@ private:
     // Doubles the size of the underlying array when size reaches capacity
     void grow(){
         if(capacity() == 0) Capacity = 1;
-        T* temp = new T[capacity() * 2];
+        T* temp = new T[capacity() * 2]{};
         Capacity *= 2;
         for(std::size_t i = 0; i < size(); ++i){
-            temp[i] = std::move(arr[i]);
+            new(temp + i) T(std::move(arr[i]));
         }
 
         delete[] arr;
@@ -111,7 +111,7 @@ public:
 
     // Size constructor with default value
     Vector(const std::size_t _size) :
-    Size{_size}, Capacity{_size}, arr{new T[_size]} {}
+    Size{_size}, Capacity{_size}, arr{new T[_size]{}} {}
 
 
     // Size constructor with given value
@@ -284,6 +284,59 @@ public:
     void clear(){
         if(empty()) return;
         while(!empty()) pop_back();
+    }
+
+
+    // Shrinks the internal array to the number of elements in the vector
+    void shrink_to_fit() noexcept {
+        if(capacity() == size()) return;
+
+        if(empty()){
+            delete[] arr;
+            arr = nullptr;
+            return;
+        }
+
+        T* temp = new T[size()];
+        for(std::size_t i = 0; i < size(); ++i){
+            new(temp + i) T(std::move(arr[i]));
+        }
+        Capacity = size();
+
+        delete[] arr;
+        arr = temp;
+    }
+
+
+    // Allocates at least _size elements in of space
+    // Only affects capacity
+    void reserve(const std::size_t _size) noexcept {
+        if(_size <= capacity()) return;
+
+        T* temp = new T[_size];
+        for(std::size_t i = 0; i < size(); ++i){
+            new(temp + i) T(std::move(arr[i]));
+        }
+        Capacity = _size;
+
+        delete[] arr;
+        arr = temp;
+    }
+
+
+    // Resizes the underlying array to _size
+    // Fills empty space with default values
+    void resize(const std::size_t _size) noexcept {
+        if(_size == size()) return;
+
+        T* temp = new T[_size]{};
+        for(std::size_t i = 0; i < (_size < size() ? _size : size()); ++i){
+            new(temp + i) T(std::move(arr[i]));
+        }
+        delete[] arr;
+        arr = temp;
+        Size = _size;
+        Capacity = _size;
     }
 
 
