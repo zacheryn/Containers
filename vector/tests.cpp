@@ -302,3 +302,163 @@ BOOST_AUTO_TEST_CASE(front_back){
     BOOST_TEST(vec.back() == 101);
     BOOST_TEST(vec.back() == vec[99]);
 }
+
+
+BOOST_AUTO_TEST_CASE(copy){
+    // Initialize vector
+    Vector<std::size_t> vec;
+    for(std::size_t i = 0; i < 100; ++i){
+        vec.push_back(i);
+    }
+
+    // Check size and capacity
+    BOOST_TEST(vec.size() == 100);
+    BOOST_TEST(vec.capacity() == 128);
+
+    // Create second Vector via copy constructor
+    Vector<std::size_t> vec_copy_con(vec);
+
+    // Check that the copy is correct
+    BOOST_TEST(vec_copy_con.size() == 100);
+    BOOST_TEST(vec_copy_con.capacity() == 128);
+    for(std::size_t i = 0; i < 100; ++i){
+        BOOST_TEST(vec_copy_con[i] == vec[i]);
+        BOOST_TEST(vec_copy_con[i] == i);
+    }
+
+    // Create third vector through copy assignment
+    Vector<std::size_t> vec_copy_assign;
+    vec_copy_assign = vec;
+
+    // Check that the copy is correct
+    BOOST_TEST(vec_copy_assign.size() == 100);
+    BOOST_TEST(vec_copy_assign.capacity() == 128);
+    for(std::size_t i = 0; i < 100; ++i){
+        BOOST_TEST(vec_copy_assign[i] == vec[i]);
+        BOOST_TEST(vec_copy_assign[i] == i);
+    }
+
+    // Change original to make sure they are both deep copies
+    std::reverse(vec.begin(), vec.end());
+
+    // Check values
+    for(std::size_t i = 0; i < 100; ++i){
+        BOOST_TEST(vec_copy_con[i] == i);
+        BOOST_TEST(vec_copy_assign[i] == i);
+        BOOST_TEST(vec[99 - i] == i);
+    }
+}
+
+
+BOOST_AUTO_TEST_CASE(move){
+    // Initialize vector
+    Vector<std::size_t> vec;
+    for(std::size_t i = 0; i < 100; ++i){
+        vec.push_back(i);
+    }
+
+    // Check size and capacity
+    BOOST_TEST(vec.size() == 100);
+    BOOST_TEST(vec.capacity() == 128);
+
+    // Track the underlying array address to check if it was moved
+    std::size_t* p = vec.data();
+
+    // Create second Vector via move constructor
+    Vector<std::size_t> vec_move_con(std::move(vec));
+
+    BOOST_TEST(vec_move_con.size() == 100);
+    BOOST_TEST(vec_move_con.capacity() == 128);
+    BOOST_TEST(vec_move_con.data() == p);
+
+    for(std::size_t i = 0; i < 100; ++i){
+        BOOST_TEST(vec_move_con[i] == i);
+    }
+
+    // Create third Vector via move assignment
+    Vector<std::size_t> vec_move_assign;
+    vec_move_assign = std::move(vec_move_con);
+
+    BOOST_TEST(vec_move_assign.size() == 100);
+    BOOST_TEST(vec_move_assign.capacity() == 128);
+    BOOST_TEST(vec_move_assign.data() == p);
+
+    for(std::size_t i = 0; i < 100; ++i){
+        BOOST_TEST(vec_move_assign[i] == i);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(shrink_to_fit){
+    // Initialize vector
+    Vector<std::size_t> vec;
+    for(std::size_t i = 0; i < 100; ++i){
+        vec.push_back(i);
+    }
+
+    // Check size and capacity
+    BOOST_TEST(vec.size() == 100);
+    BOOST_TEST(vec.capacity() == 128);
+
+    vec.shrink_to_fit();
+
+    BOOST_TEST(vec.size() == 100);
+    BOOST_TEST(vec.capacity() == 100);
+
+    for(std::size_t i = 0; i < 100; ++i){
+        BOOST_TEST(vec[i] == i);
+    }
+}
+
+
+BOOST_AUTO_TEST_CASE(resize){
+    // Initialize vector
+    Vector<std::size_t> vec;
+    for(std::size_t i = 0; i < 10; ++i){
+        vec.push_back(i);
+    }
+
+    // Check size and capacity
+    BOOST_TEST(vec.size() == 10);
+    BOOST_TEST(vec.capacity() == 16);
+
+    vec.resize(20);
+
+    BOOST_TEST(vec.size() == 20);
+    BOOST_TEST(vec.capacity() == 20);
+
+    for(std::size_t i = 10; i < 20; ++i){
+        BOOST_TEST(vec[i] == 0);
+    }
+
+    vec.resize(5);
+
+    BOOST_TEST(vec.size() == 5);
+    BOOST_TEST(vec.capacity() == 5);
+
+    for(std::size_t i = 0; i < 5; ++i){
+        BOOST_TEST(vec[i] == i);
+    }
+}
+
+
+BOOST_AUTO_TEST_CASE(reserve){
+    // Initialize vector
+    Vector<std::size_t> vec;
+    for(std::size_t i = 0; i < 10; ++i){
+        vec.push_back(i);
+    }
+
+    // Check size and capacity
+    BOOST_TEST(vec.size() == 10);
+    BOOST_TEST(vec.capacity() == 16);
+
+    vec.reserve(100);
+
+    // Check size and capacity
+    BOOST_TEST(vec.size() == 10);
+    BOOST_TEST(vec.capacity() == 100);
+
+    for(std::size_t i = 0; i < 10; ++i){
+        BOOST_TEST(vec[i] == i);
+    }
+}
