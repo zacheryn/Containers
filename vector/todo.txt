@@ -5,4 +5,3 @@ Add to Vector:
     Add functionality to iterator to make it random access instead of bidirectional
     Add erase function
     Add insert function
-    Add function to give the pointer to the vector's underlying array (maybe)
