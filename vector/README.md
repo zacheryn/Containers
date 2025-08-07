@@ -86,6 +86,8 @@ There are no public variables
 
 `void resize(const std::size_t _size) noexcept`: Changes the size of the Vector to match `_size`. If `_size == size()`, this function does nothing. Otherwise, allocates a new array of size `_size`, copying over the minimum of `_size` and `size()` elements into the new array. If `_size < size()`, it truncates the Vector.  If `_size > size()`, fills thee extra space with the default value. Sets both `Size` and `Capacity` to `_size`.
 
+`T* data() noexcept`: Returns a pointer to the underlying array. Assumes the class invariants stay valid. If they are broken, it is undefined behavior.
+
 `~Vector()`: Destructor, frees `this->arr`.
 
 ### Structs/Classes

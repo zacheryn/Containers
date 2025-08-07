@@ -132,8 +132,12 @@ public:
 
     // Move constructor
     Vector(Vector<T>&& other) :
-    Size{std::move(other.Size)}, Capacity{std::move(other.Capacity)}, arr{std::move(other.arr)}
-    {}
+    Size{0}, Capacity{0}, arr{nullptr}
+    {
+        std::swap(Size, other.Size);
+        std::swap(Capacity, other.Capacity);
+        std::swap(arr, other.arr);
+    }
 
 
     // Copy assignment
@@ -141,12 +145,11 @@ public:
         // Guard self assignment
         if(this->arr == other.arr) return *this;
         
-        if(arr != nullptr){
-            delete arr;
-        }
+        if(arr != nullptr) delete[] arr;
 
         arr = new T[other.capacity()];
         Size = other.size();
+        Capacity = other.capacity();
         std::copy(other.begin(), other.end(), begin());
 
         return *this;
@@ -158,11 +161,15 @@ public:
         // Guard self assignment
         if(this->arr == other.arr) return *this;
 
-        if(arr != nullptr) delete arr;
-
-        arr = std::move(other.arr);
-        Size = std::move(other.Size);
-        Capacity = std::move(other.Capacity);
+        if(arr != nullptr){
+            delete[] arr;
+            arr = nullptr;
+            Size = 0;
+            Capacity = 0;
+        }
+        std::swap(Size, other.Size);
+        std::swap(Capacity, other.Capacity);
+        std::swap(arr, other.arr);
         return *this;
     }
 
@@ -337,6 +344,13 @@ public:
         arr = temp;
         Size = _size;
         Capacity = _size;
+    }
+
+
+    // Returns a pointer to the underlying array
+    // Assumes class invariants will not be invalidated.
+    T* data() noexcept {
+        return arr;
     }
 
 
