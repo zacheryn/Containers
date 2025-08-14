@@ -8,7 +8,8 @@ BOOST_AUTO_TEST_CASE(add_ints){
     Vector<int> vec;
 
     // Add ten ints
-    for(int i = 0; i < 10; ++i){
+    constexpr int expected_size = 10;
+    for(int i = 0; i < expected_size; ++i){
         vec.push_back(i);
     }
 
@@ -17,22 +18,24 @@ BOOST_AUTO_TEST_CASE(add_ints){
     BOOST_TEST(vec.capacity() == 16);
 
     // Check that the elements are still in the correct order
-    for(int i = 0; i < 10; ++i){
-        BOOST_TEST(vec.at(i) == i);
-        BOOST_TEST(vec[i] == i);
+    std::size_t idx = 0;
+    for(int i = 0; i < expected_size; ++i, ++idx){
+        BOOST_TEST(vec.at(idx) == i);
+        BOOST_TEST(vec[idx] == i);
     }
 }
 
 
 BOOST_AUTO_TEST_CASE(edit_elements){
     // Initialize vector
-    Vector<int> vec;
-    for(int i = 0; i < 10; ++i){
+    Vector<std::size_t> vec;
+    constexpr std::size_t size = 10;
+    for(std::size_t i = 0; i < size; ++i){
         vec.push_back(i);
     }
 
     // Edit elements and check that they were actually changed
-    for(int i = 0; i < 10; ++i){
+    for(std::size_t i = 0; i < size; ++i){
         ++vec[i];
         BOOST_TEST(vec[i] == (i + 1));
     }
@@ -42,7 +45,8 @@ BOOST_AUTO_TEST_CASE(edit_elements){
 BOOST_AUTO_TEST_CASE(copy_constructor){
     // Create the first vector with some elements
     Vector<std::size_t> vec1;
-    for(std::size_t i = 0; i < 10; ++i){
+    constexpr std::size_t size = 10;
+    for(std::size_t i = 0; i < size; ++i){
         vec1.push_back(i);
     }
 
@@ -54,12 +58,12 @@ BOOST_AUTO_TEST_CASE(copy_constructor){
     BOOST_TEST(vec2.capacity() == vec1.capacity());
 
     // Check elments
-    for(std::size_t i = 0; i < 10; ++i){
+    for(std::size_t i = 0; i < size; ++i){
         BOOST_TEST(vec2[i] == i);
     }
 
     // Ensure the elements are independent (not shallow copy)
-    for(std::size_t i = 0; i < 10; ++i){
+    for(std::size_t i = 0; i < size; ++i){
         ++vec1[i];
         BOOST_TEST(vec1[i] != vec2[i]);
     }
@@ -68,7 +72,8 @@ BOOST_AUTO_TEST_CASE(copy_constructor){
 
 BOOST_AUTO_TEST_CASE(size_constructor){
     // Initialize vector with siz, but no default value
-    Vector<int> vec(10);
+    constexpr std::size_t expected_size = 10;
+    Vector<int> vec(expected_size);
 
     // Check size and capacity
     BOOST_TEST(vec.size() == 10);
@@ -81,13 +86,15 @@ BOOST_AUTO_TEST_CASE(size_constructor){
     }
 
     // Ensure that the vector has 10 traversable elements
-    BOOST_TEST(size == 10);
+    BOOST_TEST(size == expected_size);
 }
 
 
 BOOST_AUTO_TEST_CASE(size_with_value_constructor){
     // Initialize vector
-    Vector<std::size_t> vec(10, 1);
+    constexpr std::size_t expected_size = 10;
+    constexpr std::size_t expected_value = 1;
+    Vector<std::size_t> vec(expected_size, expected_value);
 
     // Check size and capacity
     BOOST_TEST(vec.size() == 10);
@@ -103,24 +110,26 @@ BOOST_AUTO_TEST_CASE(size_with_value_constructor){
 BOOST_AUTO_TEST_CASE(pop_elements){
     // Initialize vector
     Vector<std::size_t> vec;
-    for(std::size_t i = 0; i < 16; ++i){
+    constexpr std::size_t expected_size = 16;
+    constexpr std::size_t expected_removed = 5;
+    for(std::size_t i = 0; i < expected_size; ++i){
         vec.push_back(i);
     }
 
     // Remove five elements
-    for(std::size_t _ = 0; _ < 5; ++_){
+    for(std::size_t _ = 0; _ < expected_removed; ++_){
         vec.pop_back();
     }
 
     // Check that vector has correct size and capacity
-    BOOST_TEST(vec.size() == 11);
-    BOOST_TEST(vec.capacity() == 16);
+    BOOST_TEST(vec.size() == (expected_size - expected_removed));
+    BOOST_TEST(vec.capacity() == expected_size);
 
     // Add more elements to ensure elements update properly
-    for(std::size_t i = 0; i < 5; ++i){
+    for(std::size_t i = 0; i < expected_removed; ++i){
         vec.push_back(i);
     }
-    for(std::size_t i = 0; i < 5; ++i){
+    for(std::size_t i = 0; i < expected_removed; ++i){
         BOOST_TEST(vec[i] == vec[i + 11]);
     }
 }
@@ -129,7 +138,8 @@ BOOST_AUTO_TEST_CASE(pop_elements){
 BOOST_AUTO_TEST_CASE(clear_vec){
     // Initialize vector
     Vector<std::size_t> vec;
-    for(std::size_t i = 0; i < 10; ++i){
+    constexpr std::size_t expected_size = 10;
+    for(std::size_t i = 0; i < expected_size; ++i){
         vec.push_back(i);
     }
 
@@ -163,8 +173,9 @@ BOOST_AUTO_TEST_CASE(emplace_back_construct){
 
     // Initialize vector using emplace_back()
     Vector<A> vec;
+    constexpr int expected_size = 10;
     char c = 0;
-    for(int i = 0; i < 10; ++i, ++c){
+    for(int i = 0; i < expected_size; ++i, ++c){
         vec.emplace_back(i, i * 2, static_cast<char>('a' + c));
     }
 
@@ -173,10 +184,11 @@ BOOST_AUTO_TEST_CASE(emplace_back_construct){
     BOOST_TEST(vec.capacity() == 16);
 
     // Check the 10 elements
-    for(int i = 0; i < 10; ++i){
-        BOOST_TEST(vec[i].a == i);
-        BOOST_TEST(vec[i].b == (i * 2));
-        BOOST_TEST(vec[i].c == ('a' + i));
+    std::size_t idx = 0;
+    for(int i = 0; i < expected_size; ++i, ++idx){
+        BOOST_TEST(vec[idx].a == i);
+        BOOST_TEST(vec[idx].b == (i * 2));
+        BOOST_TEST(vec[idx].c == ('a' + i));
     }
 }
 
@@ -184,8 +196,9 @@ BOOST_AUTO_TEST_CASE(emplace_back_construct){
 BOOST_AUTO_TEST_CASE(iterator_basics){
     // Initialize vector with the alphabet (lowercase)
     Vector<char> vec;
-    for(char i = 0; i < 26; ++i){
-        vec.push_back('a' + i);
+    constexpr char expected_size = 26;
+    for(char i = 0; i < expected_size; ++i){
+        vec.push_back(static_cast<char>('a' + i));
     }
 
     // Make sure size and capacity are correct
@@ -251,7 +264,7 @@ BOOST_AUTO_TEST_CASE(iterator_assignments){
     // Initialize vector with the alphabet (lowercase)
     Vector<char> vec;
     for(char i = 0; i < 26; ++i){
-        vec.push_back('a' + i);
+        vec.push_back(static_cast<char>('a' + i));
     }
 
     // Confirm correct size and capacity
@@ -261,7 +274,7 @@ BOOST_AUTO_TEST_CASE(iterator_assignments){
     // Update all elements using iterators (uppercase alphabet)
     char i = 0;
     for(auto it = vec.begin(); it != vec.end(); ++it){
-        *it = 'A' + i;
+        *it = static_cast<char>('A' + i);
         ++i;
     }
 
