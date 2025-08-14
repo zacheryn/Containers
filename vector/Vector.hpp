@@ -110,7 +110,7 @@ public:
 
 
     // Size constructor with default value
-    Vector(const std::size_t _size) :
+    Vector(const std::size_t _size) noexcept :
     Size{_size}, Capacity{_size}, arr{new T[_size]{}} {}
 
 
@@ -124,14 +124,14 @@ public:
 
 
     // Copy constructor
-    Vector(const Vector<T>& other) :
+    Vector(const Vector<T>& other) noexcept :
     Size{other.size()}, Capacity{other.capacity()}, arr{new T[other.capacity()]} {
         std::copy(other.begin(), other.end(), begin());
     }
 
 
     // Move constructor
-    Vector(Vector<T>&& other) :
+    Vector(Vector<T>&& other) noexcept :
     Size{0}, Capacity{0}, arr{nullptr}
     {
         std::swap(Size, other.Size);
@@ -141,7 +141,7 @@ public:
 
 
     // Copy assignment
-    Vector<T>& operator=(const Vector<T>& other){
+    Vector<T>& operator=(const Vector<T>& other) noexcept {
         // Guard self assignment
         if(this->arr == other.arr) return *this;
         
@@ -157,7 +157,7 @@ public:
 
 
     // Move assignment
-    Vector<T>& operator=(Vector<T>&& other){
+    Vector<T>& operator=(Vector<T>&& other) noexcept {
         // Guard self assignment
         if(this->arr == other.arr) return *this;
 
