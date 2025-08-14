@@ -30,19 +30,19 @@ There are no public variables
 
 ### Functions
 
-`Vector()`: The defualt constuctor. Does not allocate any memory.
+`Vector() noexcept`: The defualt constuctor. Does not allocate any memory.
 
-`Vector(const std::size_t _size)`: Creates a vector of `_size` with the default value.
+`Vector(const std::size_t _size) noexcept`: Creates a vector of `_size` with the default value.
 
 `Vector(const std::size_t _size, const T& elt)`: Creates a vector of `_size` with all elements being a copy of elt.
 
-`Vector(const Vector<T>& other)`: A copy constructor that makes a deep copy of `other`. Runs in O(n) where n = `other.size()`.
+`Vector(const Vector<T>& other) noexcept`: A copy constructor that makes a deep copy of `other`. Runs in O(n) where n = `other.size()`.
 
-`Vector(Vector<T>&& other)`: A move constructor which moves the internals of `other` to `this` via `std::move`. Runs in O(1) time.
+`Vector(Vector<T>&& other) noexcept`: A move constructor which moves the internals of `other` to `this` via `std::move`. Runs in O(1) time.
 
-`Vector<T>& operator=(const Vector<T>& other)`: Creates a deep copy of `other` into `this`. Runs in O(n) where n = `other.size()`.
+`Vector<T>& operator=(const Vector<T>& other) noexcept`: Creates a deep copy of `other` into `this`. Runs in O(n) where n = `other.size()`.
 
-`Vector<T>& operator=(Vector<T>&& other)`: Move assignment operator overload. Moves `other` into `this`. Runs in O(1) time.
+`Vector<T>& operator=(Vector<T>&& other) noexcept`: Move assignment operator overload. Moves `other` into `this`. Runs in O(1) time.
 
 `void emplace_back(Args&&... args)`: Creates an element in-place at the end of the vector.
 
