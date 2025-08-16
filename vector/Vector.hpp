@@ -2,6 +2,7 @@
 #define VECTOR_HPP
 
 #include <utility>
+#include <memory>
 #include <stdexcept>
 
 
@@ -10,22 +11,21 @@ template<class T>
 class Vector{
 private:
 
-    std::size_t Size;       // The Current number of elements in the vector
-    std::size_t Capacity;   // The total space allocated for the array
-    T* arr;                 // Pointer to the start of the array
+    std::size_t Size;           // The Current number of elements in the vector
+    std::size_t Capacity;       // The total space allocated for the array
+    std::unique_ptr<T[]> uarr;  // The pointer for the array
 
 
     // Doubles the size of the underlying array when size reaches capacity
     void grow(){
         if(capacity() == 0) Capacity = 1;
-        T* temp = new T[capacity() * 2]{};
+        std::unique_ptr<T[]> utemp(new T[capacity() * 2]{});
         Capacity *= 2;
         for(std::size_t i = 0; i < size(); ++i){
-            new(temp + i) T(std::move(arr[i]));
+            new(utemp.get() + i) T(std::move(uarr[i]));
         }
 
-        delete[] arr;
-        arr = temp;
+        uarr = std::move(utemp);
     }
 
 public:
@@ -106,17 +106,17 @@ public:
 
     // Default constructor
     Vector() noexcept :
-    Size{0}, Capacity{0}, arr{nullptr} {}
+    Size{0}, Capacity{0}, uarr{nullptr} {}
 
 
     // Size constructor with default value
     Vector(const std::size_t _size) noexcept :
-    Size{_size}, Capacity{_size}, arr{new T[_size]{}} {}
+    Size{_size}, Capacity{_size}, uarr{new T[_size]{}} {}
 
 
     // Size constructor with given value
     Vector(const std::size_t _size, const T& elt) :
-    Size{0}, Capacity{_size}, arr{new T[_size]} {
+    Size{0}, Capacity{_size}, uarr{new T[_size]} {
         for(std::size_t _ = 0; _ < _size; ++_){
             push_back(elt);
         }
@@ -125,29 +125,25 @@ public:
 
     // Copy constructor
     Vector(const Vector<T>& other) noexcept :
-    Size{other.size()}, Capacity{other.capacity()}, arr{new T[other.capacity()]} {
+    Size{other.size()}, Capacity{other.capacity()}, uarr{new T[other.capacity()]} {
         std::copy(other.begin(), other.end(), begin());
     }
 
 
     // Move constructor
     Vector(Vector<T>&& other) noexcept :
-    Size{0}, Capacity{0}, arr{nullptr}
-    {
+    Size{0}, Capacity{0}, uarr{std::move(other.uarr)} {
         std::swap(Size, other.Size);
         std::swap(Capacity, other.Capacity);
-        std::swap(arr, other.arr);
     }
 
 
     // Copy assignment
     Vector<T>& operator=(const Vector<T>& other) noexcept {
         // Guard self assignment
-        if(this->arr == other.arr) return *this;
-        
-        if(arr != nullptr) delete[] arr;
+        if(this->uarr == other.uarr) return *this;
 
-        arr = new T[other.capacity()];
+        uarr.reset(new T[other.capacity()]);
         Size = other.size();
         Capacity = other.capacity();
         std::copy(other.begin(), other.end(), begin());
@@ -159,17 +155,16 @@ public:
     // Move assignment
     Vector<T>& operator=(Vector<T>&& other) noexcept {
         // Guard self assignment
-        if(this->arr == other.arr) return *this;
+        if(this->uarr == other.uarr) return *this;
 
-        if(arr != nullptr){
-            delete[] arr;
-            arr = nullptr;
+        if(uarr != nullptr){
+            uarr = nullptr;
             Size = 0;
             Capacity = 0;
         }
         std::swap(Size, other.Size);
         std::swap(Capacity, other.Capacity);
-        std::swap(arr, other.arr);
+        uarr.swap(other.uarr);
         return *this;
     }
 
@@ -178,7 +173,7 @@ public:
     template<class... Args>
     void emplace_back(Args&&... args){
         if(size() == capacity()) grow();
-        new(arr + size()) T(std::forward<Args>(args)...);
+        new(uarr.get() + size()) T(std::forward<Args>(args)...);
         ++Size;
     }
 
@@ -216,14 +211,14 @@ public:
     // Returns a reference to the indexed element
     T& at(const std::size_t i){
         if(i >= size()) throw std::out_of_range("Indexed out of range");
-        return arr[i];
+        return uarr[i];
     }
 
 
     // Returns a const reference to the indexed element
     const T& at(const std::size_t i) const {
         if(i >= size()) throw std::out_of_range("Indexed out of range");
-        return arr[i];
+        return uarr[i];
     }
 
 
@@ -255,27 +250,27 @@ public:
 
     // Operator overload to allow direct indexing
     T& operator[](const std::size_t i) noexcept {
-        return arr[i];
+        return uarr[i];
     }
 
 
     // Operator overload to allow direct const indexing
     const T& operator[](const std::size_t i) const noexcept {
-        return arr[i];
+        return uarr[i];
     }
 
 
     // Returns an iterator to the first element in the vector
     Iterator begin() const {
         if(empty()) throw std::out_of_range("Cannot create an Iterator of an empty Vector");
-        return Iterator(arr);
+        return Iterator(uarr.get());
     }
 
 
     // Returns an iterator one element past the last element in the vector
     Iterator end() const {
         if(empty()) throw std::out_of_range("Cannot create an Iterator of an empty Vector");
-        return Iterator(arr + size());
+        return Iterator(uarr.get() + size());
     }
 
 
@@ -283,13 +278,12 @@ public:
     void pop_back(){
         if(empty()) throw std::out_of_range("Cannot remove element from empty vector");
         --Size;
-        arr[size()].~T();
+        std::destroy_at(uarr.get() + size());
     }
 
 
     // Clear the vector
     void clear(){
-        if(empty()) return;
         while(!empty()) pop_back();
     }
 
@@ -299,19 +293,18 @@ public:
         if(capacity() == size()) return;
 
         if(empty()){
-            delete[] arr;
-            arr = nullptr;
+            uarr = nullptr;
+            Capacity = 0;
             return;
         }
 
-        T* temp = new T[size()];
+        std::unique_ptr<T[]> utemp(new T[size()]);
         for(std::size_t i = 0; i < size(); ++i){
-            new(temp + i) T(std::move(arr[i]));
+            new(utemp.get() + i) T(std::move(uarr[i]));
         }
         Capacity = size();
 
-        delete[] arr;
-        arr = temp;
+        uarr = std::move(utemp);
     }
 
 
@@ -320,14 +313,13 @@ public:
     void reserve(const std::size_t _size) noexcept {
         if(_size <= capacity()) return;
 
-        T* temp = new T[_size];
+        std::unique_ptr<T[]> utemp(new T[_size]);
         for(std::size_t i = 0; i < size(); ++i){
-            new(temp + i) T(std::move(arr[i]));
+            new(utemp.get() + i) T(std::move(uarr[i]));
         }
         Capacity = _size;
 
-        delete[] arr;
-        arr = temp;
+        uarr = std::move(utemp);
     }
 
 
@@ -336,12 +328,11 @@ public:
     void resize(const std::size_t _size) noexcept {
         if(_size == size()) return;
 
-        T* temp = new T[_size]{};
+        std::unique_ptr<T[]> utemp(new T[_size]{});
         for(std::size_t i = 0; i < (_size < size() ? _size : size()); ++i){
-            new(temp + i) T(std::move(arr[i]));
+            new(utemp.get() + i) T(std::move(uarr[i]));
         }
-        delete[] arr;
-        arr = temp;
+        uarr = std::move(utemp);
         Size = _size;
         Capacity = _size;
     }
@@ -350,14 +341,12 @@ public:
     // Returns a pointer to the underlying array
     // Assumes class invariants will not be invalidated.
     T* data() noexcept {
-        return arr;
+        return uarr.get();
     }
 
 
     // Destructor
-    ~Vector(){
-        delete[] arr;
-    }
+    ~Vector() = default;
 };
 
 #endif

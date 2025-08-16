@@ -12,7 +12,7 @@ This is a partially simplified version of `std::vector` in the stl along with a 
 
 `std::size_t Capacity`: Stores the size of the underlying array.
 
-`T* arr`: The pointer to the underlying array.
+`std::unique_ptr<T[]> uarr`: The pointer to the underlying array.
 
 ### Functions
 
