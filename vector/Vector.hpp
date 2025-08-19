@@ -2,7 +2,6 @@
 #define VECTOR_HPP
 
 #include <utility>
-#include <iterator>
 #include <memory>
 #include <stdexcept>
 
@@ -36,7 +35,7 @@ public:
     // Bidirectional iterator for traversing the vector
     struct Iterator{
         // Iterator traits to make the iterator stl compliant
-        using iterator_concept = std::random_access_iterator_tag;
+        using iterator_category = std::random_access_iterator_tag;
         using value_type = T;
         using difference_type = std::ptrdiff_t;
         using pointer = T*;
