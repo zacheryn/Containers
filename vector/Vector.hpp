@@ -2,6 +2,7 @@
 #define VECTOR_HPP
 
 #include <utility>
+#include <iterator>
 #include <memory>
 #include <stdexcept>
 
@@ -9,10 +10,12 @@
 // A simplified version of the stl vector
 template<class T>
 class Vector{
+public:
+    typedef std::size_t size_type;
 private:
 
-    std::size_t Size;           // The Current number of elements in the vector
-    std::size_t Capacity;       // The total space allocated for the array
+    size_type Size;           // The Current number of elements in the vector
+    size_type Capacity;       // The total space allocated for the array
     std::unique_ptr<T[]> uarr;  // The pointer for the array
 
 
@@ -21,7 +24,7 @@ private:
         if(capacity() == 0) Capacity = 1;
         std::unique_ptr<T[]> utemp(new T[capacity() * 2]{});
         Capacity *= 2;
-        for(std::size_t i = 0; i < size(); ++i){
+        for(size_type i = 0; i < size(); ++i){
             new(utemp.get() + i) T(std::move(uarr[i]));
         }
 
@@ -33,7 +36,7 @@ public:
     // Bidirectional iterator for traversing the vector
     struct Iterator{
         // Iterator traits to make the iterator stl compliant
-        using iterator_category = std::bidirectional_iterator_tag;
+        using iterator_concept = std::random_access_iterator_tag;
         using value_type = T;
         using difference_type = std::ptrdiff_t;
         using pointer = T*;
@@ -56,6 +59,15 @@ public:
         // Dereference operator overload
         T* operator->() noexcept {
             return *elt;
+        }
+
+
+        // Access operator
+        T& operator[](const size_type& i) noexcept {
+            return *(elt + i);
+        }
+        T& operator[](size_type&& i) noexcept {
+            return *(elt + i);
         }
 
 
@@ -89,6 +101,60 @@ public:
         }
 
 
+        // Compound Assignments
+        Iterator& operator+=(const size_type& offset) noexcept {
+            elt += offset;
+            return *this;
+        }
+        Iterator& operator+=(size_type&& offset) noexcept {
+            elt += offset;
+            return *this;
+        }
+        Iterator& operator-=(const size_type& offset) noexcept {
+            elt -= offset;
+            return *this;
+        }
+        Iterator& operator-=(size_type&& offset) noexcept {
+            elt -= offset;
+            return *this;
+        }
+
+
+        // Addition
+        friend Iterator operator+(Iterator it, const size_type& offset) noexcept {
+            return std::move(it += offset);
+        }
+        friend Iterator operator+(Iterator it, size_type&& offset) noexcept {
+            return std::move(it += std::move(offset));
+        }
+        friend Iterator operator+(const size_type& offset, Iterator it) noexcept {
+            return std::move(it += offset);
+        }
+        friend Iterator operator+(size_type&& offset, Iterator it) noexcept {
+            return std::move(it += std::move(offset));
+        }
+
+
+        // Subtraction
+        friend Iterator operator-(Iterator it, const size_type& offset) noexcept {
+            return std::move(it -= offset);
+        }
+        friend Iterator operator-(Iterator it, size_type&& offset) noexcept {
+            return std::move(it -= std::move(offset));
+        }
+        friend Iterator operator-(const size_type& offset, Iterator it) noexcept {
+            return std::move(it -= offset);
+        }
+        friend Iterator operator-(size_type&& offset, Iterator it) noexcept {
+            return std::move(it -= std::move(offset));
+        }
+
+
+        difference_type operator-(const Iterator& other) noexcept {
+            return static_cast<difference_type>(elt - other.elt);
+        }
+
+
         // Equality operator overload
         // Checks that the two iterators point to the same object
         friend bool operator==(const Iterator& left, const Iterator& right) noexcept {
@@ -101,6 +167,20 @@ public:
         friend bool operator!=(const Iterator& left, const Iterator& right) noexcept {
             return left.elt != right.elt;
         }
+
+
+        // Comparison operators
+        bool operator<(const Iterator& other) noexcept {
+            return elt < other.elt;
+        }
+        bool operator<=(const Iterator& other) noexcept {
+            return elt <= other.elt;
+        }bool operator>(const Iterator& other) noexcept {
+            return elt > other.elt;
+        }
+        bool operator>=(const Iterator& other) noexcept {
+            return elt >= other.elt;
+        }
     };
 
 
@@ -110,14 +190,14 @@ public:
 
 
     // Size constructor with default value
-    Vector(const std::size_t _size) noexcept :
+    Vector(const size_type _size) noexcept :
     Size{_size}, Capacity{_size}, uarr{new T[_size]{}} {}
 
 
     // Size constructor with given value
-    Vector(const std::size_t _size, const T& elt) :
+    Vector(const size_type _size, const T& elt) :
     Size{0}, Capacity{_size}, uarr{new T[_size]} {
-        for(std::size_t _ = 0; _ < _size; ++_){
+        for(size_type _ = 0; _ < _size; ++_){
             push_back(elt);
         }
     }
@@ -191,13 +271,13 @@ public:
 
 
     // Returns the size of the vector
-    std::size_t size() const noexcept {
+    size_type size() const noexcept {
         return Size;
     }
 
 
     // Returns the capacity of the vector
-    std::size_t capacity() const noexcept {
+    size_type capacity() const noexcept {
         return Capacity;
     }
 
@@ -209,14 +289,14 @@ public:
 
 
     // Returns a reference to the indexed element
-    T& at(const std::size_t i){
+    T& at(const size_type i){
         if(i >= size()) throw std::out_of_range("Indexed out of range");
         return uarr[i];
     }
 
 
     // Returns a const reference to the indexed element
-    const T& at(const std::size_t i) const {
+    const T& at(const size_type i) const {
         if(i >= size()) throw std::out_of_range("Indexed out of range");
         return uarr[i];
     }
@@ -249,13 +329,13 @@ public:
 
 
     // Operator overload to allow direct indexing
-    T& operator[](const std::size_t i) noexcept {
+    T& operator[](const size_type i) noexcept {
         return uarr[i];
     }
 
 
     // Operator overload to allow direct const indexing
-    const T& operator[](const std::size_t i) const noexcept {
+    const T& operator[](const size_type i) const noexcept {
         return uarr[i];
     }
 
@@ -299,7 +379,7 @@ public:
         }
 
         std::unique_ptr<T[]> utemp(new T[size()]);
-        for(std::size_t i = 0; i < size(); ++i){
+        for(size_type i = 0; i < size(); ++i){
             new(utemp.get() + i) T(std::move(uarr[i]));
         }
         Capacity = size();
@@ -310,11 +390,11 @@ public:
 
     // Allocates at least _size elements in of space
     // Only affects capacity
-    void reserve(const std::size_t _size) noexcept {
+    void reserve(const size_type _size) noexcept {
         if(_size <= capacity()) return;
 
         std::unique_ptr<T[]> utemp(new T[_size]);
-        for(std::size_t i = 0; i < size(); ++i){
+        for(size_type i = 0; i < size(); ++i){
             new(utemp.get() + i) T(std::move(uarr[i]));
         }
         Capacity = _size;
@@ -325,11 +405,11 @@ public:
 
     // Resizes the underlying array to _size
     // Fills empty space with default values
-    void resize(const std::size_t _size) noexcept {
+    void resize(const size_type _size) noexcept {
         if(_size == size()) return;
 
         std::unique_ptr<T[]> utemp(new T[_size]{});
-        for(std::size_t i = 0; i < (_size < size() ? _size : size()); ++i){
+        for(size_type i = 0; i < (_size < size() ? _size : size()); ++i){
             new(utemp.get() + i) T(std::move(uarr[i]));
         }
         uarr = std::move(utemp);

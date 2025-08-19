@@ -92,4 +92,4 @@ There are no public variables
 
 ### Structs/Classes
 
-`Iterator`: A bidirectional iterator that is stl compliant.
+`Iterator`: A random access iterator that is stl compliant.
