@@ -475,3 +475,43 @@ BOOST_AUTO_TEST_CASE(reserve){
         BOOST_TEST(vec[i] == i);
     }
 }
+
+
+BOOST_AUTO_TEST_CASE(random_access_iterator){
+    Vector<std::size_t> vec;
+    for(std::size_t i = 0; i < 100; ++i){
+        vec.push_back(i);
+    }
+
+    // Check size and capacity
+    BOOST_TEST(vec.size() == 100);
+    BOOST_TEST(vec.capacity() == 128);
+
+    // Move iterator by more than one at a time
+    std::size_t idx = 0;
+    for(auto it = vec.begin(); it < vec.end(); it += 5, idx += 5){
+        BOOST_TEST(*it == idx);
+    }
+
+    // Check subscript operator
+    auto it = vec.begin();
+    for(std::size_t i = 0; i < vec.size(); ++i){
+        BOOST_TEST(it[i] == i);
+    }
+
+    // Reverse to sort it later
+    std::reverse(vec.begin(), vec.end());
+
+    // Double check that the vector was actually reversed
+    for(std::size_t i = vec.size(); i--; ++it){
+        BOOST_TEST(*it == i);
+    }
+
+    // Sort the vector (requires random access)
+    std::sort(vec.begin(), vec.end());
+
+    // Check that the vector was actually sorted
+    for(std::size_t i = 0; i < vec.size(); ++i){
+        BOOST_TEST(vec[i] == i);
+    }
+}

@@ -66,7 +66,13 @@ public:
             return *(elt + i);
         }
         T& operator[](size_type&& i) noexcept {
+            return *(elt + std::move(i));
+        }
+        const T& operator[](const size_type& i) const noexcept {
             return *(elt + i);
+        }
+        const T& operator[](size_type&& i) const noexcept {
+            return *(elt + std::move(i));
         }
 
 
@@ -106,7 +112,7 @@ public:
             return *this;
         }
         Iterator& operator+=(size_type&& offset) noexcept {
-            elt += offset;
+            elt += std::move(offset);
             return *this;
         }
         Iterator& operator-=(const size_type& offset) noexcept {
@@ -114,7 +120,7 @@ public:
             return *this;
         }
         Iterator& operator-=(size_type&& offset) noexcept {
-            elt -= offset;
+            elt -= std::move(offset);
             return *this;
         }
 
@@ -169,15 +175,15 @@ public:
 
 
         // Comparison operators
-        bool operator<(const Iterator& other) noexcept {
+        bool operator<(const Iterator& other) const noexcept {
             return elt < other.elt;
         }
-        bool operator<=(const Iterator& other) noexcept {
+        bool operator<=(const Iterator& other) const noexcept {
             return elt <= other.elt;
-        }bool operator>(const Iterator& other) noexcept {
+        }bool operator>(const Iterator& other) const noexcept {
             return elt > other.elt;
         }
-        bool operator>=(const Iterator& other) noexcept {
+        bool operator>=(const Iterator& other) const noexcept {
             return elt >= other.elt;
         }
     };
