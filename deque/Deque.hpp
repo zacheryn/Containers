@@ -17,7 +17,7 @@ private:
     struct Block{
         static constexpr std::size_t BLOCKSIZE = 16;
 
-        std::unique_ptr<T> data;
+        std::unique_ptr<T[]> data;
         T* overflow = nullptr;
         std::size_t size;
         std::size_t first_offset;
@@ -200,13 +200,13 @@ private:
     std::size_t blocks_total;               // Total number of allocated Blocks
     std::size_t blocks_used;                // Number of Blocks currently in use
     std::size_t first_offset;               // Offset to the first used block
-    std::unique_ptr<Block> data;            // Array of Blocks
+    std::unique_ptr<Block[]> data;            // Array of Blocks
 
     // Double the number of allocated blocks to the front of the deque
     // REQUIRES first_offset = 0
     void grow_front() noexcept {
         if(blocks_total == 0) blocks_total = 1;
-        std::unique_ptr<Block> temp(new T[blocks_total * 2]);
+        std::unique_ptr<Block[]> temp(new T[blocks_total * 2]);
         for(std::size_t i = 0; i < blocks_used; ++i){
             temp[blocks_total + i] = std::move(data[i]);
         }
@@ -217,7 +217,7 @@ private:
     // Double the number of allocated blocks to the back of the deque
     void grow_back() noexcept {
         if(blocks_total == 0) blocks_total = 1;
-        std::unique_ptr<Block> temp(new T[blocks_total * 2]);
+        std::unique_ptr<Block[]> temp(new T[blocks_total * 2]);
         for(std::size_t i = 0; i < blocks_used && (first_offset + i) < blocks_total; ++i){
             temp[first_offset + i] = std::move(data[first_offset + i]);
         }
