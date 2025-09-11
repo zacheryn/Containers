@@ -30,163 +30,178 @@ private:
         uarr = std::move(utemp);
     }
 
-public:
+protected:
 
     // Bidirectional iterator for traversing the vector
-    struct Iterator{
+    template<class Access_Type>
+    class IteratorType{
+        friend class Vector;
+    public:
         // Iterator traits to make the iterator stl compliant
         using iterator_category = std::random_access_iterator_tag;
-        using value_type = T;
+        using value_type = Access_Type;
         using difference_type = std::ptrdiff_t;
-        using pointer = T*;
-        using reference = T&;
+        using pointer = Access_Type*;
+        using reference = Access_Type&;
 
 
-        T* elt; // A pointer to a given element in a vector
+    protected:
+        Access_Type* elt; // A pointer to a given element in a vector
 
-
+    public:
         // Simple contructor
-        Iterator(T* val) noexcept : elt{val} {};
+        IteratorType(Access_Type* val) noexcept : elt{val} {};
 
 
         // Dereference operator overload
-        T& operator*() noexcept {
+        Access_Type& operator*() noexcept {
             return *elt;
         }
 
 
         // Dereference operator overload
-        T* operator->() noexcept {
+        Access_Type* operator->() noexcept {
             return *elt;
         }
 
 
         // Access operator
-        T& operator[](const size_type& i) noexcept {
+        Access_Type& operator[](const size_type& i) noexcept {
             return *(elt + i);
         }
-        T& operator[](size_type&& i) noexcept {
+        Access_Type& operator[](size_type&& i) noexcept {
             return *(elt + std::move(i));
         }
-        const T& operator[](const size_type& i) const noexcept {
+        const Access_Type& operator[](const size_type& i) const noexcept {
             return *(elt + i);
         }
-        const T& operator[](size_type&& i) const noexcept {
+        const Access_Type& operator[](size_type&& i) const noexcept {
             return *(elt + std::move(i));
         }
 
 
         // Prefix increment
-        Iterator& operator++() noexcept {
+        IteratorType<Access_Type>& operator++() noexcept {
             ++elt;
             return *this;
         }
 
 
         // Postfix increment
-        Iterator operator++(int) noexcept {
-            Iterator temp(elt);
+        IteratorType<Access_Type> operator++(int) noexcept {
+            IteratorType<Access_Type> temp(elt);
             ++elt;
             return temp;
         }
 
 
         // Prefix decrement
-        Iterator& operator--() noexcept {
+        IteratorType<Access_Type>& operator--() noexcept {
             --elt;
             return *this;
         }
 
 
         // Postfix decrement
-        Iterator operator--(int) noexcept {
-            Iterator temp(elt);
+        IteratorType<Access_Type> operator--(int) noexcept {
+            IteratorType<Access_Type> temp(elt);
             --elt;
             return temp;
         }
 
 
         // Compound Assignments
-        Iterator& operator+=(const size_type& offset) noexcept {
+        IteratorType<Access_Type>& operator+=(const size_type& offset) noexcept {
             elt += offset;
             return *this;
         }
-        Iterator& operator+=(size_type&& offset) noexcept {
+        IteratorType<Access_Type>& operator+=(size_type&& offset) noexcept {
             elt += std::move(offset);
             return *this;
         }
-        Iterator& operator-=(const size_type& offset) noexcept {
+        IteratorType<Access_Type>& operator-=(const size_type& offset) noexcept {
             elt -= offset;
             return *this;
         }
-        Iterator& operator-=(size_type&& offset) noexcept {
+        IteratorType<Access_Type>& operator-=(size_type&& offset) noexcept {
             elt -= std::move(offset);
             return *this;
         }
 
 
         // Addition
-        friend Iterator operator+(Iterator it, const size_type& offset) noexcept {
+        friend IteratorType<Access_Type> operator+(IteratorType<Access_Type> it, const size_type& offset) noexcept {
             return std::move(it += offset);
         }
-        friend Iterator operator+(Iterator it, size_type&& offset) noexcept {
+        friend IteratorType<Access_Type> operator+(IteratorType<Access_Type> it, size_type&& offset) noexcept {
             return std::move(it += std::move(offset));
         }
-        friend Iterator operator+(const size_type& offset, Iterator it) noexcept {
+        friend IteratorType<Access_Type> operator+(const size_type& offset, IteratorType<Access_Type> it) noexcept {
             return std::move(it += offset);
         }
-        friend Iterator operator+(size_type&& offset, Iterator it) noexcept {
+        friend IteratorType<Access_Type> operator+(size_type&& offset, IteratorType<Access_Type> it) noexcept {
             return std::move(it += std::move(offset));
         }
 
 
         // Subtraction
-        friend Iterator operator-(Iterator it, const size_type& offset) noexcept {
+        friend IteratorType<Access_Type> operator-(IteratorType<Access_Type> it, const size_type& offset) noexcept {
             return std::move(it -= offset);
         }
-        friend Iterator operator-(Iterator it, size_type&& offset) noexcept {
+        friend IteratorType<Access_Type> operator-(IteratorType<Access_Type> it, size_type&& offset) noexcept {
             return std::move(it -= std::move(offset));
         }
-        friend Iterator operator-(const size_type& offset, Iterator it) noexcept {
+        friend IteratorType<Access_Type> operator-(const size_type& offset, IteratorType<Access_Type> it) noexcept {
             return std::move(it -= offset);
         }
-        friend Iterator operator-(size_type&& offset, Iterator it) noexcept {
+        friend IteratorType<Access_Type> operator-(size_type&& offset, IteratorType<Access_Type> it) noexcept {
             return std::move(it -= std::move(offset));
         }
 
 
-        difference_type operator-(const Iterator& other) noexcept {
+        difference_type operator-(const IteratorType<Access_Type>& other) noexcept {
             return static_cast<difference_type>(elt - other.elt);
         }
 
 
         // Equality operator overload
         // Checks that the two iterators point to the same object
-        friend bool operator==(const Iterator& left, const Iterator& right) noexcept {
+        friend bool operator==(const IteratorType<Access_Type>& left, const IteratorType<Access_Type>& right) noexcept {
             return left.elt == right.elt;
         }
 
 
         // Inequality operator overload
         // Checks that the two iterators point to different objects
-        friend bool operator!=(const Iterator& left, const Iterator& right) noexcept {
+        friend bool operator!=(const IteratorType<Access_Type>& left, const IteratorType<Access_Type>& right) noexcept {
             return left.elt != right.elt;
         }
 
 
         // Comparison operators
-        bool operator<(const Iterator& other) const noexcept {
+        bool operator<(const IteratorType<Access_Type>& other) const noexcept {
             return elt < other.elt;
         }
-        bool operator<=(const Iterator& other) const noexcept {
+        bool operator<=(const IteratorType<Access_Type>& other) const noexcept {
             return elt <= other.elt;
-        }bool operator>(const Iterator& other) const noexcept {
+        }bool operator>(const IteratorType<Access_Type>& other) const noexcept {
             return elt > other.elt;
         }
-        bool operator>=(const Iterator& other) const noexcept {
+        bool operator>=(const IteratorType<Access_Type>& other) const noexcept {
             return elt >= other.elt;
         }
     };
+
+
+public:
+
+    // Typedefs of the base iterator class for reduced code duplication for const and regular iterators
+
+    // STL compliant iterator allowing mutable elements
+    typedef IteratorType<T> iterator;
+
+    // STL compliant const iterator ensuring elements cannot be changed
+    typedef IteratorType<const T> const_iterator;
 
 
     // Default constructor
@@ -346,16 +361,30 @@ public:
 
 
     // Returns an iterator to the first element in the vector
-    Iterator begin() const {
+    iterator begin() const {
         if(empty()) throw std::out_of_range("Cannot create an Iterator of an empty Vector");
-        return Iterator(uarr.get());
+        return iterator(uarr.get());
     }
 
 
     // Returns an iterator one element past the last element in the vector
-    Iterator end() const {
+    iterator end() const {
         if(empty()) throw std::out_of_range("Cannot create an Iterator of an empty Vector");
-        return Iterator(uarr.get() + size());
+        return iterator(uarr.get() + size());
+    }
+
+
+    // Returns a const iterator to the first element in the vector
+    const_iterator cbegin() const {
+        if(empty()) throw std::out_of_range("Cannot create an Iterator of an empty Vector");
+        return const_iterator(uarr.get());
+    }
+
+
+    // Returns a const iterator one element past the last element in the vector
+    const_iterator cend() const {
+        if(empty()) throw std::out_of_range("Cannot create an Iterator of an empty Vector");
+        return const_iterator(uarr.get() + size());
     }
 
 
