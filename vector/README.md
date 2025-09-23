@@ -30,7 +30,7 @@ There are no public variables
 
 ### Functions
 
-`Vector() noexcept`: The defualt constuctor. Does not allocate any memory.
+`constexpr Vector() noexcept`: The defualt constuctor. Does not allocate any memory.
 
 `Vector(const std::size_t _size) noexcept`: Creates a vector of `_size` with the default value.
 
@@ -50,11 +50,11 @@ There are no public variables
 
 `void push_back(T&& elt)`: Moves `elt` to the end of the vector.
 
-`std::size_t size() const noexcept`: Returns the number of elements stored in the vector.
+`constexpr std::size_t size() const noexcept`: Returns the number of elements stored in the vector.
 
-`std::size_t capacity() const noexcept`: Returns the total capacity of the underlying array.
+`constexpr std::size_t capacity() const noexcept`: Returns the total capacity of the underlying array.
 
-`bool empty() const noexcept`: Returns true when there are no elements stored in the vector.
+`constexpr bool empty() const noexcept`: Returns true when there are no elements stored in the vector.
 
 `T& at(const std::size_t i)`: Returns a reference to the element at `i`. Throws `std::out_of_range` exception when `i >= this->size()`.
 
