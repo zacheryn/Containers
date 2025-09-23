@@ -205,7 +205,7 @@ public:
 
 
     // Default constructor
-    Vector() noexcept :
+    constexpr Vector() noexcept :
     Size{0}, Capacity{0}, uarr{nullptr} {}
 
 
@@ -291,19 +291,19 @@ public:
 
 
     // Returns the size of the vector
-    size_type size() const noexcept {
+    constexpr size_type size() const noexcept {
         return Size;
     }
 
 
     // Returns the capacity of the vector
-    size_type capacity() const noexcept {
+    constexpr size_type capacity() const noexcept {
         return Capacity;
     }
 
 
     // Returns true if the vector is empty
-    bool empty() const noexcept {
+    constexpr bool empty() const noexcept {
         return Size == 0;
     }
 
