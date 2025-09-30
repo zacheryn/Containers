@@ -251,7 +251,277 @@ private:
         data.swap(temp);
     }
 
+protected:
+
+    // Base iterator
+    template<class Access_Type>
+    class IterType{
+        friend class Deque;
+    public:
+        // Iterator traits to make the iterator stl compliant
+        using iterator_category = std::random_access_iterator_tag;
+        using value_type = Access_Type;
+        using difference_type = std::ptrdiff_t;
+        using pointer = Access_Type*;
+        using reference = Access_Type&;
+
+    protected:
+        Block* b;
+        size_type offset;
+
+    public:
+
+        // Default constructor
+        IterType() noexcept
+        : b{nullptr},
+        offset{0}
+        {}  
+
+        // Iterator to given block and offset (Assumes pointer is safe to use)
+        IterType(Block* _b, size_type _offset)
+        : b{_b},
+        offset{_offset}
+        {
+            if(offset >= Block::BLOCKSIZE)
+                throw std::invalid_argument("Offset for iterator must be less than Block::BLOCKSIZE");
+        }
+
+        // Copy constructor
+        IterType(const IterType<T>& other) noexcept
+        : b{other.b}
+        , offset{other.offset}
+        {}
+
+        // Move constructor
+        IterType(IterType<T>&& other) noexcept
+        : b{std::move(other.b)}
+        , offset{std::move(other.offset)}
+        {
+            other.b = nullptr;
+            other.offset = 0;
+        }
+
+        // Copy assignment
+        IterType<T>& operator=(const IterType<T>& other) noexcept {
+            // Guard self assignment
+            if(b == other.b && offset == other.offset) return *this;
+
+            b = other.b;
+            offset = other.offset;
+            return *this;
+        }
+
+        // Move assignment
+        IterType<T>& operator=(IterType<T>&& other) noexcept {
+            // Guard self assignment
+            if(b == other.b && offset == other.offset) return *this;
+
+            b = std::move(other.b);
+            offset = std::move(other.offset);
+            other.b = nullptr;
+            other.offset = 0;
+            return *this;
+        }
+
+        // Dereference operator overload
+        reference operator*() noexcept {
+            return (*b)[offset];
+        }
+
+        // Dereference operator overload
+        pointer operator->() noexcept {
+            return (*b)[offset];
+        }
+
+        // Access operator
+        reference operator[](const size_type& i) noexcept {
+            if((i + offset) >= Block::BLOCKSIZE){
+                size_type _i = i - (Block::BLOCKSIZE - offset);
+                return (*(b + (_i / Block::BLOCKSIZE) + 1))[(_i % Block::BLOCKSIZE)];
+            }
+            return (*(b + (i / Block::BLOCKSIZE)))[offset + (i % Block::BLOCKSIZE)];
+        }
+        reference operator[](size_type&& i) noexcept {
+            if((i + offset) >= Block::BLOCKSIZE){
+                size_type _i = i - (Block::BLOCKSIZE - offset);
+                return (*(b + (_i / Block::BLOCKSIZE) + 1))[(_i % Block::BLOCKSIZE)];
+            }
+            return (*(b + (i / Block::BLOCKSIZE)))[offset + (i % Block::BLOCKSIZE)];
+        }
+        const reference operator[](const size_type& i) const noexcept {
+            if((i + offset) >= Block::BLOCKSIZE){
+                size_type _i = i - (Block::BLOCKSIZE - offset);
+                return (*(b + (_i / Block::BLOCKSIZE) + 1))[(_i % Block::BLOCKSIZE)];
+            }
+            return (*(b + (i / Block::BLOCKSIZE)))[offset + (i % Block::BLOCKSIZE)];
+        }
+        const reference operator[](size_type&& i) const noexcept {
+            if((i + offset) >= Block::BLOCKSIZE){
+                size_type _i = i - (Block::BLOCKSIZE - offset);
+                return (*(b + (_i / Block::BLOCKSIZE) + 1))[(_i % Block::BLOCKSIZE)];
+            }
+            return (*(b + (i / Block::BLOCKSIZE)))[offset + (i % Block::BLOCKSIZE)];
+        }
+
+        // Increment
+        IterType<Access_Type>& operator++() noexcept {
+            ++offset;
+            if(offset >= Block::BLOCKSIZE){
+                ++b;
+                offset = 0;
+            }
+            return *this;
+        }
+        IterType<Access_Type> operator++(int) noexcept {
+            IterType<Access_Type> temp(*this);
+            ++offset;
+            if(offset >= Block::BLOCKSIZE){
+                ++b;
+                offset = 0;
+            }
+            return temp;
+        }
+
+        // Decrement
+        IterType<Access_Type>& operator--() noexcept {
+            if(offset == 0){
+                offset = Block::BLOCKSIZE - 1;
+                --b;
+            }else{
+                --offset;
+            }
+            return *this;
+        }
+        IterType<Access_Type> operator--(int) noexcept {
+            IterType<Access_Type> temp(*this);
+            if(offset == 0){
+                offset = Block::BLOCKSIZE - 1;
+                --b;
+            }else{
+                --offset;
+            }
+            return temp;
+        }
+
+        // Compound Assignments
+        IterType<Access_Type>& operator+=(const size_type& shift) noexcept {
+            offset += shift;
+            b += offset / Block::BLOCKSIZE;
+            offset = offset % Block::BLOCKSIZE;
+            return *this;
+        }
+        IterType<Access_Type>& operator+=(size_type&& shift) noexcept {
+            offset += std::move(shift);
+            b += offset / Block::BLOCKSIZE;
+            offset = offset % Block::BLOCKSIZE;
+            return *this;
+        }
+        IterType<Access_Type>& operator-=(size_type shift) noexcept {
+            if(shift > offset){
+                if((shift % Block::BLOCKSIZE) > 0){
+                    shift -= shift % Block::BLOCKSIZE;
+                    if((shift % Block::BLOCKSIZE) > offset){
+                        offset = (offset + Block::BLOCKSIZE) - (shift % Block::BLOCKSIZE);
+                        --b;
+                    }else{
+                        offset -= shift % Block::BLOCKSIZE;
+                        --b;
+                    }
+                }
+                b -= shift / Block::BLOCKSIZE;
+            }else{
+                offset -= shift;
+            }
+            return *this;
+        }
+        IterType<Access_Type>& operator-=(size_type&& shift) noexcept {
+            size_type _shift = std::move(shift);
+            if(_shift > offset){
+                if((_shift % Block::BLOCKSIZE) > 0){
+                    _shift -= _shift % Block::BLOCKSIZE;
+                    if((_shift % Block::BLOCKSIZE) > offset){
+                        offset = (offset + Block::BLOCKSIZE) - (_shift % Block::BLOCKSIZE);
+                        --b;
+                    }else{
+                        offset -= _shift % Block::BLOCKSIZE;
+                        --b;
+                    }
+                }
+                b -= shift / Block::BLOCKSIZE;
+            }else{
+                offset -= _shift;
+            }
+            return *this;
+        }
+
+        // Addition
+        friend IterType<Access_Type> operator+(IterType<Access_Type> it, const size_type& shift) noexcept {
+            return std::move(it += shift);
+        }
+        friend IterType<Access_Type> operator+(const size_type& shift, IterType<Access_Type> it) noexcept {
+            return std::move(it += shift);
+        }
+        friend IterType<Access_Type> operator+(IterType<Access_Type> it, size_type&& shift) noexcept {
+            return std::move(it += std::move(shift));
+        }
+        friend IterType<Access_Type> operator+(size_type&& shift, IterType<Access_Type> it) noexcept {
+            return std::move(it += std::move(shift));
+        }
+
+        // Subtraction
+        friend IterType<Access_Type> operator-(IterType<Access_Type> it, const size_type& shift) noexcept {
+            return std::move(it -= shift);
+        }
+        friend IterType<Access_Type> operator-(const size_type& shift, IterType<Access_Type> it) noexcept {
+            return std::move(it -= shift);
+        }
+        friend IterType<Access_Type> operator-(IterType<Access_Type> it, size_type&& shift) noexcept {
+            return std::move(it -= std::move(shift));
+        }
+        friend IterType<Access_Type> operator-(size_type&& shift, IterType<Access_Type> it) noexcept {
+            return std::move(it -= std::move(shift));
+        }
+
+        // Difference
+        difference_type operator-(const IterType<Access_Type>& other) const noexcept {
+            return (static_cast<difference_type>(b - other.b) * Block::BLOCKSIZE)
+            + static_cast<difference_type>((b.data.get() + offset) - (other.b.data.get() + other.offset));
+        }
+
+        // Equality operator
+        bool operator==(const IterType<Access_Type>& other) const noexcept {
+            return b == other.b && offset == other.offset;
+        }
+
+        // Inequality operator
+        bool operator!=(const IterType<Access_Type>& other) const noexcept {
+            return b != other.b || offset != other.offset;
+        }
+
+        // Comparison operator
+        bool operator<(const IterType<Access_Type>& other) const noexcept {
+            return b == other.b ? offset < other.offset : b < other.b;
+        }
+        bool operator<=(const IterType<Access_Type>& other) const noexcept {
+            return b == other.b ? offset <= other.offset : b <= other.b;
+        }
+        bool operator>(const IterType<Access_Type>& other) const noexcept {
+            return b == other.b ? offset < other.offset : b < other.b;
+        }
+        bool operator>=(const IterType<Access_Type>& other) const noexcept {
+            return b == other.b ? offset <= other.offset : b <= other.b;
+        }
+
+        ~IterType() = default;
+    };
+
 public:
+
+    // STL compliant iterator allowing mutable elements
+    typedef IterType<T> iterator;
+
+    // STL compliant const iterator ensuring elements cannot be changed
+    typedef IterType<const T> const_iterator;
 
     // Default constructor
     constexpr Deque()
