@@ -272,7 +272,7 @@ protected:
     public:
 
         // Default constructor
-        IterType() noexcept
+        constexpr IterType() noexcept
         : b{nullptr},
         offset{0}
         {}  
@@ -657,6 +657,34 @@ public:
 
         data[first_offset + blocks_used].emplace_back(std::move(args...));
         ++Size;
+    }
+
+    // Returns an iterator to the first element
+    iterator begin() const {
+        if(empty()) throw std::out_of_range("Cannot create iterator on empty Deque");
+        return iterator(data.get() + first_offset, data[first_offset].first_offset);
+    }
+
+    // Returns an iterator to one past the last element
+    iterator end() const {
+        if(empty()) throw std::out_of_range("Cannot create iterator on empty Deque");
+        if(data[first_offset + blocks_used].check_back())
+            return iterator(data.get() + first_offset + blocks_used, data[first_offset + blocks_used].first_offset + 1);
+        return iterator(data.get() + first_offset + blocks_used + 1, 0);
+    }
+
+    // Returns a const_iterator to the first element
+    const_iterator cbegin() const {
+        if(empty()) throw std::out_of_range("Cannot create iterator on empty Deque");
+        return const_iterator(data.get() + first_offset, data[first_offset].first_offset);
+    }
+
+    // Returns an iterator to one past the last element
+    const_iterator cend() const {
+        if(empty()) throw std::out_of_range("Cannot create iterator on empty Deque");
+        if(data[first_offset + blocks_used].check_back())
+            return const_iterator(data.get() + first_offset + blocks_used, data[first_offset + blocks_used].first_offset + 1);
+        return const_iterator(data.get() + first_offset + blocks_used + 1, 0);
     }
 
     ~Deque() = default;
