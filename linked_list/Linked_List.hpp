@@ -8,6 +8,9 @@
 // A doubly-linked list
 template<class T>
 class List{
+public:
+    using size_type = std::size_t;
+
 private:
 
     // The data structure for eeach node in the list
@@ -18,42 +21,42 @@ private:
 
 
         // Default constructor
-        Node() :
+        constexpr Node() noexcept :
         elt{T()}, next{nullptr}, prev{nullptr} {}
 
 
         // Constructor with variable parameters
         template<class... Args>
-        Node(Node* _next, Node* _prev, Args&&... args) :
+        Node(Node* _next, Node* _prev, Args&&... args) noexcept :
         elt{T(std::forward<Args>(args)...)}, next{_next}, prev{_prev} {}
     };
 
 
     Node* first;        // First Node in the list
     Node* last;         // Last Node in the list
-    std::size_t Size;   // Number of Nodes in the list
+    size_type Size;   // Number of Nodes in the list
 
 public:
 
     // Default constructor
-    List() noexcept :
+    constexpr List() noexcept :
     first{nullptr}, last{nullptr}, Size{0} {}
 
 
     // Size based constructor (Fills in with default value)
-    List(std::size_t _size) :
+    List(size_type _size) :
     first{nullptr}, last{nullptr}, Size{0} {
         T elt = T();
-        for(std::size_t i = 0; i < _size; ++i){
+        for(size_type i = 0; i < _size; ++i){
             push_back(elt);
         }
     }
 
 
     // Sized based constructor with given value (Assumes copying available)
-    List(std::size_t _size, const T& _elt) :
+    List(size_type _size, const T& _elt) :
     first{nullptr}, last{nullptr}, Size{0} {
-        for(std::size_t i = 0; i < _size; ++i){
+        for(size_type i = 0; i < _size; ++i){
             push_back(_elt);
         }
     }
@@ -88,13 +91,13 @@ public:
 
 
         // Dereference operator overload
-        T& operator*() noexcept {
+        [[nodiscard]] reference operator*() const noexcept {
             return node->elt;
         }
 
 
         // Dereference operator overload
-        T* operator->() noexcept {
+        [[nodiscard]] pointer operator->() const noexcept {
             return node->elt;
         }
 
@@ -130,38 +133,38 @@ public:
 
 
         // Equality operator overload
-        friend bool operator==(const Iterator& left, const Iterator& right) noexcept {
+        [[nodiscard]] friend bool operator==(const Iterator& left, const Iterator& right) noexcept {
             return left.node == right.node;
         }
 
 
         // Inequality operator overload
-        friend bool operator!=(const Iterator& left, const Iterator& right) noexcept {
+        [[nodiscard]] friend bool operator!=(const Iterator& left, const Iterator& right) noexcept {
             return left.node != right.node;
         }
     };
 
 
     // Returns the number of nodes in the list
-    std::size_t size() const noexcept {
+    [[nodiscard]] constexpr size_type size() const noexcept {
         return Size;
     }
 
 
     // Returns true if the list is empty
-    bool empty() const noexcept {
+    [[nodiscard]] constexpr bool empty() const noexcept {
         return size() == 0;
     }
 
 
     // Returns an iterator to the first element
-    Iterator begin() noexcept {
+    [[nodiscard]] constexpr Iterator begin() const noexcept {
         return Iterator(first);
     }
 
 
     // Returns an iterator to one past the final element
-    Iterator end() noexcept {
+    [[nodiscard]] constexpr Iterator end() const noexcept {
         if(empty()) return Iterator(last);
         return Iterator(last->next);
     }
@@ -264,62 +267,62 @@ public:
 
 
     // Return a reference to the idxth node element in the list
-    T& at(std::size_t idx){
+    [[nodiscard]] T& at(size_type idx){
         if(idx >= size()) throw std::out_of_range("Cannot index node greater than size");
         Node* node = first;
-        for(std::size_t i = 0; i < idx; ++i) node = node->next;
+        for(size_type i = 0; i < idx; ++i) node = node->next;
         return node->elt;
     }
 
 
     // Return a const reference to the idxth node element in the list
-    const T& at(std::size_t idx) const {
+    [[nodiscard]] const T& at(size_type idx) const {
         if(idx >= size()) throw std::out_of_range("Cannot index node greater than size");
         Node* node = first;
-        for(std::size_t i = 0; i < idx; ++i) node = node->next;
+        for(size_type i = 0; i < idx; ++i) node = node->next;
         return node->elt;
     }
 
 
     // Return a reference to the idxth node element in the list
-    T& operator[](std::size_t idx){
+    [[nodiscard]] T& operator[](size_type idx){
         Node* node = first;
-        for(std::size_t i = 0; i < idx; ++i) node = node->next;
+        for(size_type i = 0; i < idx; ++i) node = node->next;
         return node->elt;
     }
 
 
     // Return a const reference to the idxth node element in the list
-    const T& operator[](std::size_t idx) const {
+    [[nodiscard]] const T& operator[](size_type idx) const {
         Node* node = first;
-        for(std::size_t i = 0; i < idx; ++i) node = node->next;
+        for(size_type i = 0; i < idx; ++i) node = node->next;
         return node->elt;
     }
 
 
     // Return a reference to the first element in the list
-    T& front(){
+    [[nodiscard]] T& front(){
         if(empty()) throw std::out_of_range("Cannot index into empty list");
         return first->elt;
     }
 
 
     // Return a const reference to the first element in the list
-    const T& front() const {
+    [[nodiscard]] const T& front() const {
         if(empty()) throw std::out_of_range("Cannot index into empty list");
         return first->elt;
     }
 
 
     // Return a reference to the last element in the list
-    T& back(){
+    [[nodiscard]] T& back(){
         if(empty()) throw std::out_of_range("Cannot index into empty list");
         return last->elt;
     }
 
 
     // Return a const reference to the last element in the list
-    const T& back() const {
+    [[nodiscard]] const T& back() const {
         if(empty()) throw std::out_of_range("Cannot index into empty list");
         return last->elt;
     }
