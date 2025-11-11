@@ -54,13 +54,13 @@ protected:
 
 
         // Dereference operator overload
-        Access_Type& operator*() noexcept {
+        [[nodiscard]] Access_Type& operator*() const noexcept {
             return *elt;
         }
 
 
         // Dereference operator overload
-        Access_Type* operator->() noexcept {
+        [[nodiscard]] Access_Type* operator->() const noexcept {
             return *elt;
         }
 
@@ -130,64 +130,65 @@ protected:
 
 
         // Addition
-        friend IteratorType<Access_Type> operator+(IteratorType<Access_Type> it, const size_type& offset) noexcept {
+        [[nodiscard]] friend IteratorType<Access_Type> operator+(IteratorType<Access_Type> it, const size_type& offset) noexcept {
             return std::move(it += offset);
         }
-        friend IteratorType<Access_Type> operator+(IteratorType<Access_Type> it, size_type&& offset) noexcept {
+        [[nodiscard]] friend IteratorType<Access_Type> operator+(IteratorType<Access_Type> it, size_type&& offset) noexcept {
             return std::move(it += std::move(offset));
         }
-        friend IteratorType<Access_Type> operator+(const size_type& offset, IteratorType<Access_Type> it) noexcept {
+        [[nodiscard]] friend IteratorType<Access_Type> operator+(const size_type& offset, IteratorType<Access_Type> it) noexcept {
             return std::move(it += offset);
         }
-        friend IteratorType<Access_Type> operator+(size_type&& offset, IteratorType<Access_Type> it) noexcept {
+        [[nodiscard]] friend IteratorType<Access_Type> operator+(size_type&& offset, IteratorType<Access_Type> it) noexcept {
             return std::move(it += std::move(offset));
         }
 
 
         // Subtraction
-        friend IteratorType<Access_Type> operator-(IteratorType<Access_Type> it, const size_type& offset) noexcept {
+        [[nodiscard]] friend IteratorType<Access_Type> operator-(IteratorType<Access_Type> it, const size_type& offset) noexcept {
             return std::move(it -= offset);
         }
-        friend IteratorType<Access_Type> operator-(IteratorType<Access_Type> it, size_type&& offset) noexcept {
+        [[nodiscard]] friend IteratorType<Access_Type> operator-(IteratorType<Access_Type> it, size_type&& offset) noexcept {
             return std::move(it -= std::move(offset));
         }
-        friend IteratorType<Access_Type> operator-(const size_type& offset, IteratorType<Access_Type> it) noexcept {
+        [[nodiscard]] friend IteratorType<Access_Type> operator-(const size_type& offset, IteratorType<Access_Type> it) noexcept {
             return std::move(it -= offset);
         }
-        friend IteratorType<Access_Type> operator-(size_type&& offset, IteratorType<Access_Type> it) noexcept {
+        [[nodiscard]] friend IteratorType<Access_Type> operator-(size_type&& offset, IteratorType<Access_Type> it) noexcept {
             return std::move(it -= std::move(offset));
         }
 
 
-        difference_type operator-(const IteratorType<Access_Type>& other) noexcept {
+        [[nodiscard]] difference_type operator-(const IteratorType<Access_Type>& other) const noexcept {
             return static_cast<difference_type>(elt - other.elt);
         }
 
 
         // Equality operator overload
         // Checks that the two iterators point to the same object
-        friend bool operator==(const IteratorType<Access_Type>& left, const IteratorType<Access_Type>& right) noexcept {
+        [[nodiscard]] friend bool operator==(const IteratorType<Access_Type>& left, const IteratorType<Access_Type>& right) noexcept {
             return left.elt == right.elt;
         }
 
 
         // Inequality operator overload
         // Checks that the two iterators point to different objects
-        friend bool operator!=(const IteratorType<Access_Type>& left, const IteratorType<Access_Type>& right) noexcept {
+        [[nodiscard]] friend bool operator!=(const IteratorType<Access_Type>& left, const IteratorType<Access_Type>& right) noexcept {
             return left.elt != right.elt;
         }
 
 
         // Comparison operators
-        bool operator<(const IteratorType<Access_Type>& other) const noexcept {
+        [[nodiscard]] bool operator<(const IteratorType<Access_Type>& other) const noexcept {
             return elt < other.elt;
         }
-        bool operator<=(const IteratorType<Access_Type>& other) const noexcept {
+        [[nodiscard]] bool operator<=(const IteratorType<Access_Type>& other) const noexcept {
             return elt <= other.elt;
-        }bool operator>(const IteratorType<Access_Type>& other) const noexcept {
+        }
+        [[nodiscard]] bool operator>(const IteratorType<Access_Type>& other) const noexcept {
             return elt > other.elt;
         }
-        bool operator>=(const IteratorType<Access_Type>& other) const noexcept {
+        [[nodiscard]] bool operator>=(const IteratorType<Access_Type>& other) const noexcept {
             return elt >= other.elt;
         }
     };
@@ -291,98 +292,98 @@ public:
 
 
     // Returns the size of the vector
-    constexpr size_type size() const noexcept {
+    [[nodiscard]] constexpr size_type size() const noexcept {
         return Size;
     }
 
 
     // Returns the capacity of the vector
-    constexpr size_type capacity() const noexcept {
+    [[nodiscard]] constexpr size_type capacity() const noexcept {
         return Capacity;
     }
 
 
     // Returns true if the vector is empty
-    constexpr bool empty() const noexcept {
+    [[nodiscard]] constexpr bool empty() const noexcept {
         return Size == 0;
     }
 
 
     // Returns a reference to the indexed element
-    T& at(const size_type i){
+    [[nodiscard]] T& at(const size_type i){
         if(i >= size()) throw std::out_of_range("Indexed out of range");
         return uarr[i];
     }
 
 
     // Returns a const reference to the indexed element
-    const T& at(const size_type i) const {
+    [[nodiscard]] const T& at(const size_type i) const {
         if(i >= size()) throw std::out_of_range("Indexed out of range");
         return uarr[i];
     }
 
 
     // Returns a reference to the first element in the vector
-    T& front(){
+    [[nodiscard]] T& front(){
         return at(0);
     }
 
 
     // Returns a const reference to the first element in the vector
-    const T& front() const {
+    [[nodiscard]] const T& front() const {
         return at(0);
     }
 
 
     // Returns a reference to the final element in the vector
-    T& back(){
+    [[nodiscard]] T& back(){
         if(size() == 0) throw std::out_of_range("Indexed out of range");
         return at(size() - 1);
     }
 
 
     // Returns a const reference to the final element in the vector
-    const T& back() const {
+    [[nodiscard]] const T& back() const {
         if(size() == 0) throw std::out_of_range("Indexed out of range");
         return at(size() - 1);
     }
 
 
     // Operator overload to allow direct indexing
-    T& operator[](const size_type i) noexcept {
+    [[nodiscard]] T& operator[](const size_type i) noexcept {
         return uarr[i];
     }
 
 
     // Operator overload to allow direct const indexing
-    const T& operator[](const size_type i) const noexcept {
+    [[nodiscard]] const T& operator[](const size_type i) const noexcept {
         return uarr[i];
     }
 
 
     // Returns an iterator to the first element in the vector
-    iterator begin() const {
+    [[nodiscard]] iterator begin() const {
         if(empty()) throw std::out_of_range("Cannot create an Iterator of an empty Vector");
         return iterator(uarr.get());
     }
 
 
     // Returns an iterator one element past the last element in the vector
-    iterator end() const {
+    [[nodiscard]] iterator end() const {
         if(empty()) throw std::out_of_range("Cannot create an Iterator of an empty Vector");
         return iterator(uarr.get() + size());
     }
 
 
     // Returns a const iterator to the first element in the vector
-    const_iterator cbegin() const {
+    [[nodiscard]] const_iterator cbegin() const {
         if(empty()) throw std::out_of_range("Cannot create an Iterator of an empty Vector");
         return const_iterator(uarr.get());
     }
 
 
     // Returns a const iterator one element past the last element in the vector
-    const_iterator cend() const {
+    [[nodiscard]] const_iterator cend() const {
         if(empty()) throw std::out_of_range("Cannot create an Iterator of an empty Vector");
         return const_iterator(uarr.get() + size());
     }
@@ -454,7 +455,7 @@ public:
 
     // Returns a pointer to the underlying array
     // Assumes class invariants will not be invalidated.
-    T* data() noexcept {
+    [[nodiscard]] T* data() noexcept {
         return uarr.get();
     }
 
